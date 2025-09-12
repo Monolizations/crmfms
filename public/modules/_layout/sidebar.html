@@ -1,0 +1,38 @@
+<!-- Sidebar Navigation -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <i class="fas fa-graduation-cap"></i>
+      <span class="brand-text">FAMS</span>
+    </div>
+    <button class="sidebar-toggle d-lg-none" id="sidebarToggle">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  
+  <div class="sidebar-user">
+    <div class="user-avatar">
+      <i class="fas fa-user-circle"></i>
+    </div>
+    <div class="user-info">
+      <div class="user-name" id="userName">Loading...</div>
+      <div class="user-role" id="userRole">Loading...</div>
+    </div>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <ul class="nav-list" id="navList">
+      <!-- Navigation items will be populated by JavaScript -->
+    </ul>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <button class="btn btn-outline-light btn-sm" onclick="window.auth.logout()">
+      <i class="fas fa-sign-out-alt"></i>
+      Logout
+    </button>
+  </div>
+</div>
+
+<!-- Sidebar Overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FAMS • Floors</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <script src="/crmfms/public/assests/js/css-loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="/crmfms/public/assests/css/app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  </noscript>
+  <!-- Inline critical CSS to prevent FOUC -->
+  <style>
+    body { 
+      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+      background-color: #f8f9fa;
+      color: #212529;
+      margin: 0;
+      padding: 0;
+    }
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    }
+    .btn {
+      border-radius: 0.5rem;
+      font-weight: 500;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    .main-content {
+      margin-left: 280px;
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+    @media (max-width: 991.98px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <!-- Mobile Top Navigation -->
+  <div class="top-navbar d-lg-none">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="d-flex align-items-center">
+      <i class="fas fa-graduation-cap me-2"></i>
+      <span class="fw-bold">FAMS</span>
+    </div>
+    <div></div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar-placeholder"></div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <script src="/crmfms/public/assests/js/auth.js"></script>
+    <script src="/crmfms/public/assests/js/sidebar.js"></script>
+    <script src="/crmfms/public/assests/js/access-control.js"></script>
+    <script>
+      // Load sidebar
+      fetch("/crmfms/public/modules/_layout/sidebar.html").then(r=>r.text()).then(h=>{
+        document.getElementById("sidebar-placeholder").innerHTML = h;
+        // Re-initialize sidebar after loading
+        if (window.sidebarManager) {
+          window.sidebarManager.setupSidebar();
+        }
+      });
+    </script>
+  
+    <div class="container py-4">
+        
+    <h4 class="mb-3">Floor Management</h4>
+
+    <!-- Add Floor Button -->
+    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addFloorModal">
+      <i class="fas fa-plus-circle me-2"></i>Add New Floor
+    </button>
+
+    <!-- List Floors -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Floor List</h6>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle">
+            <thead>
+              <tr>
+                <th>ID</th><th>Building</th><th>Floor Number</th><th>Name</th><th>Description</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="floorTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Floor Modal -->
+  <div class="modal fade" id="addFloorModal" tabindex="-1" aria-labelledby="addFloorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addFloorModalLabel">Add New Floor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addFloorForm">
+            <div class="mb-3">
+              <label for="addBuildingId" class="form-label">Building</label>
+              <select id="addBuildingId" class="form-select" required>
+                <!-- Buildings will be populated by JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="addFloorNumber" class="form-label">Floor Number</label>
+              <input type="number" class="form-control" id="addFloorNumber" required>
+            </div>
+            <div class="mb-3">
+              <label for="addFloorName" class="form-label">Floor Name (optional)</label>
+              <input type="text" class="form-control" id="addFloorName">
+            </div>
+            <div class="mb-3">
+              <label for="addFloorDescription" class="form-label">Description (optional)</label>
+              <textarea class="form-control" id="addFloorDescription" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Floor</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Floor Modal -->
+  <div class="modal fade" id="editFloorModal" tabindex="-1" aria-labelledby="editFloorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editFloorModalLabel">Edit Floor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editFloorForm">
+            <input type="hidden" id="editFloorId">
+            <div class="mb-3">
+              <label for="editBuildingId" class="form-label">Building</label>
+              <select id="editBuildingId" class="form-select" required>
+                <!-- Buildings will be populated by JavaScript -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="editFloorNumber" class="form-label">Floor Number</label>
+              <input type="number" class="form-control" id="editFloorNumber" required>
+            </div>
+            <div class="mb-3">
+              <label for="editFloorName" class="form-label">Floor Name (optional)</label>
+              <input type="text" class="form-control" id="editFloorName">
+            </div>
+            <div class="mb-3">
+              <label for="editFloorDescription" class="form-label">Description (optional)</label>
+              <textarea class="form-control" id="editFloorDescription" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div> <!-- End main-content -->
+  
+  <script src="floors.js"></script>
+</body>
+</html>

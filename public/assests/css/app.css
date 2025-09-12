@@ -1,0 +1,305 @@
+/* ==============================
+   Faculty Attendance & Monitoring System
+   Global Theme Overrides
+   ============================== */
+
+/* Body */
+body {
+    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+  }
+  
+  /* Navbar */
+  .navbar-brand {
+    font-weight: 600;
+    letter-spacing: .5px;
+  }
+  .navbar .nav-link.active {
+    font-weight: 600;
+    color: #fff !important;
+    background: rgba(255,255,255,0.1);
+    border-radius: .5rem;
+  }
+  
+  /* Cards */
+  .card {
+    border: none;
+    border-radius: .75rem;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+  }
+  .card-header {
+    background: #f1f3f5;
+    border-bottom: none;
+    font-weight: 600;
+  }
+  
+  /* Tables */
+  .table {
+    font-size: 0.9rem;
+  }
+  .table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  .table-hover tbody tr:hover {
+    background-color: #f1f3f5;
+  }
+  
+  /* Forms */
+  .form-label {
+    font-weight: 500;
+  }
+  input.form-control, select.form-select {
+    border-radius: 0.5rem;
+  }
+  .form-control-lg {
+    font-size: 1rem;
+    padding: .75rem 1rem;
+  }
+  
+  /* Buttons */
+  .btn {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    letter-spacing: .25px;
+  }
+  .btn-lg {
+    padding: .75rem 1.25rem;
+  }
+  
+  /* Utility */
+  .shadow-soft {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.05);
+  }
+
+  /* ==============================
+     Sidebar Navigation Styles
+     ============================== */
+  
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+  
+  .sidebar-header {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+  }
+  
+  .sidebar-brand i {
+    margin-right: 0.75rem;
+    font-size: 1.75rem;
+  }
+  
+  .brand-text {
+    letter-spacing: 1px;
+  }
+  
+  .sidebar-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s;
+  }
+  
+  .sidebar-toggle:hover {
+    background-color: rgba(255,255,255,0.1);
+  }
+  
+  .sidebar-user {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+  }
+  
+  .user-avatar {
+    margin-right: 1rem;
+  }
+  
+  .user-avatar i {
+    font-size: 2.5rem;
+    color: rgba(255,255,255,0.8);
+  }
+  
+  .user-info {
+    flex: 1;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .user-role {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.7);
+  }
+  
+  .sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+  }
+  
+  .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .nav-item {
+    margin-bottom: 0.25rem;
+  }
+  
+  .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.5rem;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 0;
+    position: relative;
+  }
+  
+  .nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .nav-link.active {
+    background-color: rgba(255,255,255,0.15);
+    color: white;
+    font-weight: 600;
+  }
+  
+  .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: white;
+  }
+  
+  .nav-link i {
+    margin-right: 0.75rem;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+  
+  .sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .sidebar-footer .btn {
+    width: 100%;
+    border-color: rgba(255,255,255,0.3);
+    color: white;
+  }
+  
+  .sidebar-footer .btn:hover {
+    background-color: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.5);
+  }
+  
+  /* Sidebar Overlay for Mobile */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 999;
+    display: none;
+  }
+  
+  /* Main Content Area */
+  .main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 991.98px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+      transform: translateX(0);
+    }
+    
+    .main-content {
+      margin-left: 0;
+    }
+    
+    .sidebar-overlay.show {
+      display: block;
+    }
+  }
+  
+  /* Top Navigation Bar for Mobile */
+  .top-navbar {
+    display: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1001;
+  }
+  
+  @media (max-width: 991.98px) {
+    .top-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  
+  .mobile-menu-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s;
+  }
+  
+  .mobile-menu-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+  }
+  

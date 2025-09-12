@@ -1,0 +1,154 @@
+CRM FMS Windows Setup Guide
+===========================
+
+This guide will help you set up the CRM FMS (Faculty Attendance Management System) on Windows using XAMPP.
+
+Prerequisites
+-------------
+- Windows 10/11
+- XAMPP (latest version with PHP 8.1+, MySQL 8.0+)
+- Git (optional, for cloning repository)
+- Web browser (Chrome/Firefox recommended)
+
+Step 1: Install XAMPP
+---------------------
+1. Download XAMPP from https://www.apachefriends.org/download.html
+2. Choose the version with PHP 8.1 or higher
+3. Run the installer as Administrator
+4. Install to default location: C:\xampp\
+5. During installation, ensure Apache, MySQL, and PHP are selected
+
+Step 2: Start XAMPP Services
+---------------------------
+1. Open XAMPP Control Panel (run as Administrator)
+2. Start Apache service
+3. Start MySQL service
+4. Ensure both services are running (green status)
+
+Step 3: Download/Extract CRM FMS
+-------------------------------
+Option A: Using Git (Recommended)
+1. Open Command Prompt or Git Bash
+2. Navigate to XAMPP htdocs folder:
+   cd C:\xampp\htdocs\
+3. Clone the repository:
+   git clone [repository-url] crmfms
+4. Navigate to the project:
+   cd crmfms
+
+Option B: Manual Download
+1. Download the project ZIP file
+2. Extract to C:\xampp\htdocs\crmfms\
+3. Ensure the folder structure is preserved
+
+Step 4: Configure Apache Virtual Host (Optional but Recommended)
+---------------------------------------------------------------
+1. Open Notepad as Administrator
+2. Open file: C:\xampp\apache\conf\extra\httpd-vhosts.conf
+3. Add at the end:
+
+<VirtualHost *:80>
+    ServerName crmfms.local
+    DocumentRoot "C:/xampp/htdocs/crmfms"
+
+    <Directory "C:/xampp/htdocs/crmfms">
+        AllowOverride All
+        Require all granted
+        DirectoryIndex index.html
+    </Directory>
+
+    # Enable PHP processing
+    <FilesMatch \.php$>
+        SetHandler application/x-httpd-php
+    </FilesMatch>
+</VirtualHost>
+
+4. Save the file
+5. Open Notepad as Administrator
+6. Open file: C:\Windows\System32\drivers\etc\hosts
+7. Add at the end:
+   127.0.0.1 crmfms.local
+8. Save the file
+9. Restart Apache in XAMPP Control Panel
+
+Step 5: Set Up Database
+----------------------
+1. Open phpMyAdmin: http://localhost/phpmyadmin/
+2. Create new database: faculty_attendance_system
+3. Import database setup:
+   - Go to Import tab
+   - Choose file: C:\xampp\htdocs\crmfms\database_setup.sql
+   - Click Go
+4. Run migrations in order:
+   - Import: migration_user_roles.sql
+   - Import: migration_buildings_floors_rooms.sql
+   - Import: migration_create_rooms_qr_codes.sql
+   - Import: migration_create_attendance_table.sql
+   - Import: migration_create_leave_requests_table.sql
+   - Import: migration_create_archived_leave_requests.sql
+   - Import: add_main_south_floors.sql
+   - Import: migration_remove_staff_role.sql
+
+Step 6: Configure PHP Settings (if needed)
+-----------------------------------------
+1. Open php.ini: C:\xampp\php\php.ini
+2. Ensure these settings:
+   - upload_max_filesize = 10M
+   - post_max_size = 10M
+   - max_execution_time = 300
+   - memory_limit = 256M
+3. Restart Apache
+
+Step 7: Test the Installation
+----------------------------
+1. Open browser
+2. If using virtual host: http://crmfms.local
+3. Or direct access: http://localhost/crmfms
+4. You should see the login page
+5. Test login with admin credentials:
+   - Email: admin@crmfms.local
+   - Password: admin123
+
+Step 8: Post-Installation Setup
+------------------------------
+1. Change default passwords for all users
+2. Configure system settings (grace period, etc.)
+3. Set up QR codes for rooms if using mobile scanning
+4. Test all user roles and permissions
+
+Troubleshooting
+---------------
+1. Apache won't start: Check if port 80 is free (Skype/other apps)
+2. MySQL won't start: Check if port 3306 is free
+3. PHP errors: Check Apache error log: C:\xampp\apache\logs\error.log
+4. Database connection errors: Verify MySQL credentials in config/database.php
+5. Permission errors: Run XAMPP as Administrator
+
+Default Test Accounts
+---------------------
+Admin:
+- Email: admin@crmfms.local
+- Password: admin123
+
+Faculty:
+- Email: john.smith@crmfms.local
+- Password: faculty123
+
+Staff:
+- Email: emily.davis@crmfms.local
+- Password: staff123
+
+Access URLs
+-----------
+- Main Application: http://crmfms.local or http://localhost/crmfms
+- phpMyAdmin: http://localhost/phpmyadmin
+- Test Login Page: http://crmfms.local/test_login.html
+
+Support
+-------
+For issues, check:
+1. XAMPP logs in C:\xampp\apache\logs\ and C:\xampp\mysql\data\
+2. PHP error logs
+3. Browser developer console (F12)
+
+The system is now ready for use!

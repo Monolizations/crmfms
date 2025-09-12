@@ -1,0 +1,85 @@
+CRM FMS Troubleshooting Guide
+=============================
+
+Common Issues and Solutions
+
+1. Apache Won't Start
+---------------------
+- Check if port 80 is in use by another application (Skype, IIS, etc.)
+- Run XAMPP as Administrator
+- Check Apache error log: C:\xampp\apache\logs\error.log
+- Try changing Apache port in XAMPP config
+
+2. MySQL Won't Start
+--------------------
+- Check if port 3306 is in use
+- Ensure no other MySQL instances are running
+- Check MySQL error log: C:\xampp\mysql\data\mysql_error.log
+- Try reinstalling XAMPP or repairing MySQL
+
+3. Database Connection Errors
+-----------------------------
+- Verify database name: faculty_attendance_system
+- Check MySQL credentials in config/database.php
+- Ensure all SQL files were imported successfully
+- Test connection via phpMyAdmin
+
+4. PHP Errors
+-------------
+- Check PHP version (must be 8.1+)
+- Verify php.ini settings (upload limits, execution time)
+- Check Apache error log for PHP errors
+- Enable error reporting in PHP for debugging
+
+5. Login Issues
+---------------
+- Verify user exists in database
+- Check password hashing (bcrypt)
+- Ensure user status is 'active'
+- Check user roles are properly assigned
+
+6. Permission Errors
+--------------------
+- Run XAMPP as Administrator
+- Check file permissions on htdocs folder
+- Ensure Apache can write to necessary directories
+
+7. Virtual Host Issues
+----------------------
+- Ensure hosts file is updated correctly
+- Restart Apache after virtual host changes
+- Check httpd-vhosts.conf syntax
+
+8. QR Code Issues
+-----------------
+- Ensure GD library is enabled in PHP
+- Check file permissions for QR code generation
+- Verify QR code paths in database
+
+9. Email/SMTP Issues
+--------------------
+- Configure SMTP settings in php.ini
+- Test with a simple mail script
+- Check firewall/antivirus blocking
+
+10. Performance Issues
+----------------------
+- Increase PHP memory_limit
+- Optimize MySQL queries
+- Enable caching if available
+- Check server resources (CPU, RAM)
+
+Logs to Check
+-------------
+- Apache: C:\xampp\apache\logs\error.log
+- Apache Access: C:\xampp\apache\logs\access.log
+- MySQL: C:\xampp\mysql\data\mysql_error.log
+- PHP: Check php error log setting in php.ini
+
+Getting Help
+------------
+1. Check browser developer console (F12) for JavaScript errors
+2. Verify all prerequisites are met
+3. Test with default credentials first
+4. Check GitHub issues for similar problems
+5. Provide detailed error messages when seeking help

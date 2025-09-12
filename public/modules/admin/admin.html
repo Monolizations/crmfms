@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FAMS • Admin Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <script src="/crmfms/public/assests/js/css-loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="/crmfms/public/assests/css/app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  </noscript>
+  <!-- Inline critical CSS to prevent FOUC -->
+  <style>
+    body { 
+      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+      background-color: #f8f9fa;
+      color: #212529;
+      margin: 0;
+      padding: 0;
+    }
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    }
+    .btn {
+      border-radius: 0.5rem;
+      font-weight: 500;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    .main-content {
+      margin-left: 280px;
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+    @media (max-width: 991.98px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <!-- Mobile Top Navigation -->
+  <div class="top-navbar d-lg-none">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="d-flex align-items-center">
+      <i class="fas fa-graduation-cap me-2"></i>
+      <span class="fw-bold">FAMS</span>
+    </div>
+    <div></div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar-placeholder"></div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <script src="/crmfms/public/assests/js/auth.js"></script>
+    <script src="/crmfms/public/assests/js/sidebar.js"></script>
+    <script src="/crmfms/public/assests/js/access-control.js"></script>
+    <script>
+      // Load sidebar
+      fetch("/crmfms/public/modules/_layout/sidebar.html").then(r=>r.text()).then(h=>{
+        document.getElementById("sidebar-placeholder").innerHTML = h;
+        // Re-initialize sidebar after loading
+        if (window.sidebarManager) {
+          window.sidebarManager.setupSidebar();
+        }
+      });
+    </script>
+  <div class="container py-4">
+    <h4 class="mb-3">Admin Settings & Management</h4>
+
+    <!-- User Management -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header"><strong>User Management</strong></div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle">
+            <thead>
+              <tr>
+                <th>ID</th><th>EmpID</th><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Settings -->
+    <form id="settingsForm" class="card p-3 mb-4 shadow-sm">
+      <h6 class="mb-3">System Settings</h6>
+      <div class="row g-2">
+        <div class="col-md-4">
+          <label class="form-label">Grace Period (minutes)</label>
+          <input type="number" class="form-control" id="gracePeriod" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Overtime Threshold (hours)</label>
+          <input type="number" class="form-control" id="overtimeThreshold" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">Save Settings</button>
+    </form>
+
+    <!-- Audit Logs -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Audit Logs</h6>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle">
+            <thead>
+              <tr><th>ID</th><th>User</th><th>Action</th><th>Description</th><th>Time</th></tr>
+            </thead>
+            <tbody id="auditTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div> <!-- End main-content -->
+  
+  <!-- Edit User Modal (Copied from faculties.html) -->
+  <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editUserForm">
+            <input type="hidden" id="editUserId">
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Employee ID</label>
+                <input type="text" class="form-control" id="editEmployeeId" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="editEmail" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-control" id="editFirstName" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="editLastName" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">New Password (optional)</label>
+                <input type="password" class="form-control" id="editPassword">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Roles</label>
+                <div id="editRolesCheckboxes" class="border p-2 rounded" style="max-height: 120px; overflow-y: auto;">
+                  <!-- Checkboxes will be populated by JavaScript -->
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Management - CRMFMS</title>
+    <link href="/crmfms/public/assests/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/crmfms/public/assests/css/app.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div id="sidebar-content"></div>
+            </div>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">QR Code Management</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshBtn">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary" id="bulkGenerateBtn">
+                                <i class="bi bi-qr-code"></i> Bulk Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Panel -->
+                <div class="card mb-4" id="bulkActionsPanel" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Bulk QR Code Generation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="generateType" class="form-label">Generate QR codes for:</label>
+                                <select class="form-select" id="generateType">
+                                    <option value="all">All (Faculty + Rooms)</option>
+                                    <option value="faculty">Faculty Only</option>
+                                    <option value="room">Rooms Only</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="button" class="btn btn-success" id="executeBulkGenerate">
+                                    <i class="bi bi-play-fill"></i> Execute
+                                </button>
+                                <button type="button" class="btn btn-secondary ms-2" id="cancelBulkGenerate">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-white bg-primary">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="totalQRCodes">-</h4>
+                                        <p class="card-text">Total QR Codes</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-qr-code" style="font-size: 2rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-success">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="facultyQRCodes">-</h4>
+                                        <p class="card-text">Faculty QR Codes</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-person" style="font-size: 2rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-info">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="roomQRCodes">-</h4>
+                                        <p class="card-text">Room QR Codes</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="bi bi-building" style="font-size: 2rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Codes Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">QR Codes List</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="qrCodesTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Type</th>
+                                        <th>Display Name</th>
+                                        <th>Reference Code</th>
+                                        <th>QR Code</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qrCodesTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code Preview Modal -->
+                <div class="modal fade" id="qrPreviewModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">QR Code Preview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <div id="qrPreviewContent">
+                                    <p>Loading QR code...</p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="downloadQRBtn">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/crmfms/public/assests/js/bootstrap.bundle.min.js"></script>
+    <script src="/crmfms/public/assests/js/api.js"></script>
+    <script src="/crmfms/public/modules/_layout/sidebar.js"></script>
+    <script src="/crmfms/public/modules/qr/qr.js"></script>
+</body>
+</html>

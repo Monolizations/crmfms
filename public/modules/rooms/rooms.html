@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FAMS • Rooms & QR Codes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="/crmfms/public/assests/css/app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  </noscript>
+  <!-- Inline critical CSS to prevent FOUC -->
+  <style>
+    body { 
+      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+      background-color: #f8f9fa;
+      color: #212529;
+      margin: 0;
+      padding: 0;
+    }
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    }
+    .btn {
+      border-radius: 0.5rem;
+      font-weight: 500;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    .main-content {
+      margin-left: 280px;
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+    @media (max-width: 991.98px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <!-- Mobile Top Navigation -->
+  <div class="top-navbar d-lg-none">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="d-flex align-items-center">
+      <i class="fas fa-graduation-cap me-2"></i>
+      <span class="fw-bold">FAMS</span>
+    </div>
+    <div></div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar-placeholder"></div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <script src="/crmfms/public/assests/js/auth.js"></script>
+    <script src="/crmfms/public/assests/js/sidebar.js"></script>
+    <script src="/crmfms/public/assests/js/access-control.js"></script>
+    <script>
+      // Load sidebar
+      fetch("/crmfms/public/modules/_layout/sidebar.html").then(r=>r.text()).then(h=>{
+        document.getElementById("sidebar-placeholder").innerHTML = h;
+        // Re-initialize sidebar after loading
+        if (window.sidebarManager) {
+          window.sidebarManager.setupSidebar();
+        }
+      });
+    </script>
+  
+    <div class="container py-4">
+        
+    <h4 class="mb-3">Rooms & QR Codes Management</h4>
+
+    <!-- Add Room Button -->
+    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addRoomModal">
+      <i class="fas fa-plus-circle me-2"></i>Add New Room
+    </button>
+
+    <!-- List Rooms -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Room List</h6>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle">
+            <thead>
+              <tr>
+                <th>ID</th><th>Building</th><th>Floor</th><th>Code</th><th>Name</th>
+                <th>QR Code</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="roomTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Room Modal -->
+  <div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addRoomModalLabel">Add New Room</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addRoomForm">
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Building</label>
+                <select id="addBuildingId" class="form-select" required>
+                  <!-- Buildings will be populated by JavaScript -->
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Floor</label>
+                <select id="addFloorId" class="form-select" required>
+                  <!-- Floors will be populated by JavaScript -->
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Room Code</label>
+                <input type="text" class="form-control" id="addRoomCode" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Room Name</label>
+                <input type="text" class="form-control" id="addRoomName" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Room</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Room Modal -->
+  <div class="modal fade" id="editRoomModal" tabindex="-1" aria-labelledby="editRoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editRoomModalLabel">Edit Room</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editRoomForm">
+            <input type="hidden" id="editRoomId">
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Building</label>
+                <select id="editBuildingId" class="form-select" required>
+                  <!-- Buildings will be populated by JavaScript -->
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Floor</label>
+                <select id="editFloorId" class="form-select" required>
+                  <!-- Floors will be populated by JavaScript -->
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Room Code</label>
+                <input type="text" class="form-control" id="editRoomCode" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Room Name</label>
+                <input type="text" class="form-control" id="editRoomName" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div> <!-- End main-content -->
+  
+  <script src="rooms.js"></script>
+
+  <!-- Generic QR Viewer Modal -->
+  <div class="modal fade" id="qrViewerModal" tabindex="-1" aria-labelledby="qrViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="qrViewerModalLabel">QR Code</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="qrCodeImage" src="" alt="QR Code" class="img-fluid">
+        </div>
+        <div class="modal-footer">
+          <a id="downloadQrBtn" class="btn btn-success" download="qrcode.png">Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/crmfms/public/assests/js/css-loader.js"></script>
+</body>
+</html>
