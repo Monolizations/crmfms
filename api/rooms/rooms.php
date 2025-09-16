@@ -18,8 +18,8 @@ function validateRequiredFields($input, $requiredFields) {
 
 try {
   $db = (new Database())->getConnection();
-  // Allow faculty to view rooms for scheduling purposes
-  requireAuth($db, ['admin', 'dean', 'faculty']);
+  // Allow faculty and secretaries to view rooms for scheduling purposes
+  requireAuth(['admin', 'dean', 'faculty', 'secretary']);
 
   if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt = $db->query("SELECT r.*, q.code_value AS qr_code, f.floor_number, f.name as floor_name, b.name as building_name
@@ -30,9 +30,22 @@ try {
                         ORDER BY b.name, f.floor_number, r.name ASC");
     $items = $stmt->fetchAll();
     
-    // Add QR code URL to each item
+    // Add QR code URL to each item with room details
     foreach ($items as &$item) {
-        $item['qr_code_url'] = '/crmfms/api/qr/generate.php?data=' . urlencode($item['qr_code']);
+        // Create structured QR data with room details
+        $roomDetails = [
+          'type' => 'room',
+          'room_id' => $item['room_id'],
+          'room_code' => $item['room_code'],
+          'room_name' => $item['name'],
+          'building' => $item['building_name'],
+          'floor' => $item['floor_number'],
+          'floor_name' => $item['floor_name'] ?: '',
+          'status' => $item['status']
+        ];
+        
+        $qrData = json_encode($roomDetails);
+        $item['qr_code_url'] = '/crmfms/api/qr/generate.php?data=' . urlencode($qrData);
     }
     unset($item); // Break the reference with the last element
 
@@ -45,6 +58,7 @@ try {
     $action = $input['action'] ?? '';
 
     if ($action === 'create') {
+      requireAuth(['admin', 'dean', 'secretary']); // Admin, dean, and secretary can create rooms
       validateRequiredFields($input, ['floor_id', 'room_code', 'name']);
       $stmt = $db->prepare("INSERT INTO rooms(floor_id,room_code,name,status) VALUES(:fid,:rc,:n,'active')");
       $stmt->execute([
@@ -54,8 +68,27 @@ try {
       ]);
       $rid = $db->lastInsertId();
 
-      // Auto-generate QR
-      $qrVal = "QR-ROOM-".$input['room_code'];
+      // Get building and floor details for QR code
+      $stmt = $db->prepare("SELECT b.name as building_name, f.floor_number, f.name as floor_name 
+                            FROM floors f 
+                            JOIN buildings b ON f.building_id = b.building_id 
+                            WHERE f.floor_id = :fid");
+      $stmt->execute([':fid'=>$input['floor_id']]);
+      $location = $stmt->fetch();
+
+      // Create structured QR data with room details
+      $roomDetails = [
+        'type' => 'room',
+        'room_id' => $rid,
+        'room_code' => $input['room_code'],
+        'room_name' => $input['name'],
+        'building' => $location['building_name'],
+        'floor' => $location['floor_number'],
+        'floor_name' => $location['floor_name'] ?: '',
+        'status' => 'active'
+      ];
+      
+      $qrVal = json_encode($roomDetails);
       $stmt = $db->prepare("INSERT INTO qr_codes(code_type,ref_id,code_value) VALUES('room',:id,:c)");
       $stmt->execute([':id'=>$rid, ':c'=>$qrVal]);
 
@@ -66,9 +99,10 @@ try {
     }
 
     if ($action === 'toggle') {
+      requireAuth(['admin', 'dean', 'secretary']); // Admin, dean, and secretary can toggle room status
       validateRequiredFields($input, ['room_id']);
       $id = (int)$input['room_id'];
-      $stmt = $db->prepare("UPDATE rooms 
+      $stmt = $db->prepare("UPDATE rooms
                             SET status = CASE WHEN status='active' THEN 'inactive' ELSE 'active' END
                             WHERE room_id=:id");
       $stmt->execute([':id'=>$id]);
@@ -77,6 +111,7 @@ try {
     }
 
     if ($action === 'update') {
+      requireAuth(['admin', 'dean', 'secretary']); // Admin, dean, and secretary can update rooms
       validateRequiredFields($input, ['room_id', 'floor_id', 'room_code', 'name']);
       $stmt = $db->prepare("UPDATE rooms SET floor_id=:fid, room_code=:rc, name=:n WHERE room_id=:id");
       $stmt->execute([
@@ -90,15 +125,18 @@ try {
     }
 
     if ($action === 'delete') {
+      requireAuth(['admin', 'dean', 'secretary']); // Admin, dean, and secretary can delete rooms
       validateRequiredFields($input, ['room_id']);
       $stmt = $db->prepare("DELETE FROM rooms WHERE room_id=:id");
       $stmt->execute([':id'=>$input['room_id']]);
+      $stmt2 = $db->prepare("DELETE FROM qr_codes WHERE code_type='room' AND ref_id=:id");
+      $stmt2->execute([':id'=>$input['room_id']]);
       echo json_encode(['success'=>true,'message'=>'Room deleted successfully']);
       exit;
     }
 
     if ($action === 'generate_qr_codes') {
-      requireAuth($db, ['admin', 'dean']); // Only admin and dean can generate QR codes
+      requireAuth(['admin', 'dean']); // Only admin and dean can generate QR codes
       
       // Find rooms without QR codes
       $stmt = $db->query("SELECT r.room_id, r.room_code 

@@ -1,7 +1,9 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-function requireAuth(PDO $db, array $requiredRoles = []) {
+function requireAuth(array $requiredRoles = []) {
   if (!isset($_SESSION['uid'])) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
@@ -13,6 +15,9 @@ function requireAuth(PDO $db, array $requiredRoles = []) {
   }
 
   $userRoles = $_SESSION['roles'] ?? [];
+  if (!is_array($userRoles)) {
+    $userRoles = [];
+  }
   $hasPermission = !empty(array_intersect($userRoles, $requiredRoles));
 
   if (!$hasPermission) {

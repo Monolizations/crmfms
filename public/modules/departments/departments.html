@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FAMS • Department QR Codes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/crmfms/public/assests/css/bootstrap.min.css">
+  <link rel="preload" href="/crmfms/public/assests/css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/fontawesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <script src="/crmfms/public/assests/js/css-loader.js"></script>
+  <script src="/crmfms/public/assests/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    
+    
+    
+  </noscript>
+  <!-- Inline critical CSS to prevent FOUC -->
+  <style>
+    body {
+      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+      background-color: #f8f9fa;
+      color: #212529;
+      margin: 0;
+      padding: 0;
+    }
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    }
+    .btn {
+      border-radius: 0.5rem;
+      font-weight: 500;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    .main-content {
+      margin-left: 280px;
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+    @media (max-width: 991.98px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <!-- Back Button -->
+  <button id="backBtn" class="btn btn-secondary position-fixed" style="top: 10px; left: 10px; z-index: 1050;" onclick="window.history.back()" title="Go Back">
+    <i class="fas fa-arrow-left"></i> Back
+  </button>
+
+  <style>
+    @media (min-width: 992px) {
+      #backBtn {
+        left: 310px !important;
+      }
+    }
+  </style>
+
+  <!-- Mobile Top Navigation -->
+  <div class="top-navbar d-lg-none">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="d-flex align-items-center">
+      <i class="fas fa-graduation-cap me-2"></i>
+      <span class="fw-bold">FAMS</span>
+    </div>
+    <div></div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar-placeholder"></div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <script src="/crmfms/public/assests/js/auth.js"></script>
+    <script src="/crmfms/public/assests/js/sidebar.js"></script>
+    <script src="/crmfms/public/assests/js/access-control.js"></script>
+    <script>
+      // Load sidebar
+      fetch("/crmfms/public/modules/_layout/sidebar.html").then(r=>r.text()).then(h=>{
+        document.getElementById("sidebar-placeholder").innerHTML = h;
+        // Re-initialize sidebar after loading
+        if (window.sidebarManager) {
+          window.sidebarManager.setupSidebar();
+        }
+      });
+    </script>
+
+    <div class="container py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Department QR Codes</h4>
+        <button type="button" class="btn btn-success" id="addDeptQrBtn">
+          <i class="fas fa-plus-circle me-2"></i>Add Department QR
+        </button>
+      </div>
+
+      <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Permanent QR Code:</strong> The system includes a permanent department QR code (QR-DEPT-SECRETARY-001) for secretary desk check-in/out.
+        This QR code cannot be deleted and ensures consistent department attendance tracking.
+      </div>
+
+      <!-- Department QR Codes List -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6>Department Check-in QR Codes</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>QR Code Value</th><th>QR Code</th><th>Created</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="deptQrTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> <!-- End main-content -->
+
+  <script src="departments.js"></script>
+
+  <!-- QR Viewer Modal -->
+  <div class="modal fade" id="qrViewerModal" tabindex="-1" aria-labelledby="qrViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="qrViewerModalLabel">Department QR Code</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="qrCodeImage" src="" alt="QR Code" class="img-fluid">
+        </div>
+        <div class="modal-footer">
+          <a id="downloadQrBtn" class="btn btn-success" download="department_qr.png">Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

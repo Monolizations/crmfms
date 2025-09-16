@@ -4,15 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FAMS • Dashboard</title>
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <link rel="preload" href="/crmfms/public/assests/css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/fontawesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 
   <!-- Fallback for browsers that don't support preload -->
   <noscript>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="/crmfms/public/assests/css/app.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/crmfms/public/assests/css/bootstrap.min.css">
+    
+    
   </noscript>
   <!-- Inline critical CSS to prevent FOUC -->
   <style>
@@ -61,6 +61,8 @@
   </style>
 </head>
 <body class="bg-light">
+
+
   <!-- Mobile Top Navigation -->
   <div class="top-navbar d-lg-none">
     <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -99,204 +101,611 @@
       <span class="badge bg-primary" id="roleTag">LOADING...</span>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div id="adminDashboard" style="display: none;">
-      <h4>Admin Dashboard</h4>
-      <div class="row g-3">
-        <!-- System KPIs -->
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Total Users</h6>
-              <h3 id="adminTotalUsers" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Active Sessions</h6>
-              <h3 id="adminActiveSessions" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">System Alerts</h6>
-              <h3 id="adminSystemAlerts" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Pending Approvals</h6>
-              <h3 id="adminPendingApprovals" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Dean/Secretary Dashboard -->
-    <div id="deanDashboard" style="display: none;">
-      <h4>Department Dashboard</h4>
-      <div class="row g-3">
-        <!-- Department KPIs -->
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Present (Dept)</h6>
-              <h3 id="kpiDeptPresent" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Present (Classes)</h6>
-              <h3 id="kpiClassPresent" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Missed Time-out</h6>
-              <h3 id="kpiMissed" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Pending Leaves</h6>
-              <h3 id="kpiLeaves" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-
-        <!-- Live list -->
-        <div class="col-12 col-xl-8">
-          <div class="card shadow-sm">
-            <div class="card-header d-flex align-items-center">
-              <strong>Who's In (Now)</strong>
-              <div class="ms-auto">
-                <button id="refreshBtn" class="btn btn-sm btn-outline-primary">Refresh</button>
+      <!-- Admin Dashboard -->
+      <div id="adminDashboard" style="display: none;">
+        <h4>Admin Dashboard</h4>
+        <div class="row g-3">
+          <!-- System KPIs -->
+          <div class="col-6 col-lg-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted mb-1">Total Users</h6>
+                <h3 id="adminTotalUsers" class="mb-0">0</h3>
               </div>
             </div>
-            <div class="card-body">
-              <div id="presentList" class="list-group small"></div>
-              <div id="presentEmpty" class="text-muted">No active check-ins.</div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted mb-1">Active Today</h6>
+                <h3 id="adminActiveToday" class="mb-0">0</h3>
+              </div>
             </div>
           </div>
-        </div>
+          <div class="col-6 col-lg-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted mb-1">Pending Leaves</h6>
+                <h3 id="adminPendingLeaves" class="mb-0">0</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted mb-1">System Alerts</h6>
+                <h3 id="adminSystemAlerts" class="mb-0">0</h3>
+              </div>
+            </div>
+          </div>
 
-        <!-- Alerts & Suggestions -->
-        <div class="col-12 col-xl-4">
-          <div class="card shadow-sm mb-3">
-            <div class="card-header"><strong>Alerts</strong></div>
-            <div class="card-body small" id="alertsBox">Loading…</div>
-          </div>
-          <div class="card shadow-sm">
-            <div class="card-header d-flex">
-              <strong>Roaming Suggestions</strong>
-              <button id="suggestBtn" class="btn btn-sm btn-outline-secondary ms-auto">Randomize</button>
-            </div>
-            <div class="card-body small" id="suggestionsBox">Loading…</div>
-          </div>
-        </div>
-      </div>
-    </div>
+          <!-- Quick Actions -->
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header">
+                <strong>Quick Actions</strong>
+              </div>
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-md-3 col-sm-6">
+                    <button class="btn btn-outline-primary w-100" onclick="window.location.href='/crmfms/public/modules/faculties/faculties.html'">
+                      <i class="fas fa-users"></i> Manage Users
+                    </button>
+                  </div>
+                  <div class="col-md-3 col-sm-6">
+                    <button class="btn btn-outline-success w-100" onclick="window.location.href='/crmfms/public/modules/rooms/rooms.html'">
+                      <i class="fas fa-building"></i> Manage Rooms
+                    </button>
+                  </div>
+                  <div class="col-md-3 col-sm-6">
+                    <button class="btn btn-outline-info w-100" onclick="window.location.href='/crmfms/public/modules/rooms/rooms.html'">
+                      <i class="fas fa-qrcode"></i> QR Codes
+                    </button>
+                  </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-warning w-100" onclick="window.location.href='/crmfms/public/modules/leaves/leaves.html'">
+                     <i class="fas fa-calendar-times"></i> Leave Requests
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-secondary w-100" onclick="window.location.href='/crmfms/public/modules/reports/reports.html'">
+                     <i class="fas fa-chart-bar"></i> Reports
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-danger w-100" onclick="window.location.href='/crmfms/public/modules/monitoring/monitoring.html'">
+                     <i class="fas fa-eye"></i> Monitoring
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-dark w-100" onclick="showGracePeriodModal()">
+                     <i class="fas fa-clock"></i> Grace Period
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-primary w-100" onclick="window.location.href='/crmfms/public/modules/admin/admin.html'">
+                     <i class="fas fa-cog"></i> Admin Settings
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
 
-    <!-- Program Head Dashboard -->
-    <div id="programHeadDashboard" style="display: none;">
-      <h4>Program Dashboard</h4>
-      <div class="row g-3">
-        <!-- Program KPIs -->
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Program Faculty</h6>
-              <h3 id="programFacultyCount" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Active Classes</h6>
-              <h3 id="programActiveClasses" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Program Attendance</h6>
-              <h3 id="programAttendanceRate" class="mb-0">0%</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Pending Requests</h6>
-              <h3 id="programPendingRequests" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+         <!-- Recent Activity & Audit Trail -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm">
+             <div class="card-header d-flex align-items-center">
+               <strong>Recent Activity</strong>
+               <button id="refreshActivityBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="recentActivityBox" style="max-height: 300px; overflow-y: auto;">
+               <div class="text-muted">Loading recent activity...</div>
+             </div>
+           </div>
+         </div>
 
-    <!-- Faculty Dashboard -->
-    <div id="facultyDashboard" style="display: none;">
-      <h4>My Dashboard</h4>
-      <div class="row g-3">
-        <!-- Personal KPIs -->
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Today's Schedule</h6>
-              <h3 id="facultyTodaySchedule" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Attendance Rate</h6>
-              <h3 id="facultyAttendanceRate" class="mb-0">0%</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Pending Leaves</h6>
-              <h3 id="facultyPendingLeaves" class="mb-0">0</h3>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted mb-1">Current Status</h6>
-              <h3 id="facultyCurrentStatus" class="mb-0">Out</h3>
-            </div>
-          </div>
-        </div>
+         <!-- System Monitoring & Suggestions -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm mb-3">
+             <div class="card-header"><strong>System Alerts</strong></div>
+             <div class="card-body small" id="adminAlertsBox">Loading alerts...</div>
+           </div>
+           <div class="card shadow-sm">
+             <div class="card-header d-flex">
+               <strong>Roaming Suggestions</strong>
+               <button id="adminSuggestBtn" class="btn btn-sm btn-secondary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body small" id="adminSuggestionsBox">Loading suggestions...</div>
+           </div>
+         </div>
+       </div>
+     </div>
 
-        <!-- Personal Schedule -->
-        <div class="col-12">
-          <div class="card shadow-sm">
-            <div class="card-header"><strong>Today's Schedule</strong></div>
-            <div class="card-body" id="facultyScheduleBox">Loading…</div>
+     <!-- Dean Dashboard -->
+     <div id="deanDashboard" style="display: none;">
+       <h4>Department Dashboard</h4>
+       <div class="row g-3">
+         <!-- Department KPIs -->
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Total Faculty</h6>
+               <h3 id="deanTotalFaculty" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Present Today</h6>
+               <h3 id="deanPresentToday" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Pending Leaves</h6>
+               <h3 id="deanPendingLeaves" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Active Rooms</h6>
+               <h3 id="deanActiveRooms" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+
+         <!-- Quick Actions -->
+         <div class="col-12">
+           <div class="card shadow-sm">
+             <div class="card-header">
+               <strong>Quick Actions</strong>
+             </div>
+             <div class="card-body">
+               <div class="row g-2">
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-primary w-100" onclick="window.location.href='/crmfms/public/modules/faculties/faculties.html'">
+                     <i class="fas fa-users"></i> Faculty Management
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-success w-100" onclick="window.location.href='/crmfms/public/modules/leaves/leaves.html'">
+                     <i class="fas fa-calendar-times"></i> Leave Approvals
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-info w-100" onclick="window.location.href='/crmfms/public/modules/reports/reports.html'">
+                     <i class="fas fa-chart-bar"></i> Department Reports
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-warning w-100" onclick="window.location.href='/crmfms/public/modules/rooms/rooms.html'">
+                     <i class="fas fa-building"></i> Room Management
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Faculty Performance & Approvals -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm mb-3">
+             <div class="card-header d-flex align-items-center">
+               <strong>Faculty Performance Issues</strong>
+               <button id="refreshPerformanceBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="facultyPerformanceBox" style="max-height: 250px; overflow-y: auto;">
+               <div class="text-muted">Loading faculty performance data...</div>
+             </div>
+           </div>
+
+           <div class="card shadow-sm">
+             <div class="card-header d-flex align-items-center">
+               <strong>Pending Leave Approvals</strong>
+               <button id="refreshApprovalsBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="pendingApprovalsBox" style="max-height: 300px; overflow-y: auto;">
+               <div class="text-muted">Loading pending approvals...</div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Department Analytics -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm mb-3">
+             <div class="card-header"><strong>Monthly Attendance Trend</strong></div>
+             <div class="card-body">
+               <canvas id="attendanceChart" width="100%" height="200"></canvas>
+             </div>
+           </div>
+
+           <div class="card shadow-sm">
+             <div class="card-header"><strong>Room Utilization (Top 10)</strong></div>
+             <div class="card-body" id="roomUtilizationBox" style="max-height: 250px; overflow-y: auto;">
+               <div class="text-muted">Loading room utilization data...</div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+
+      <!-- Secretary Dashboard -->
+      <div id="secretaryDashboard" style="display: none;">
+        <h4>Secretary Dashboard</h4>
+        <div class="row g-3">
+          <!-- Secretary KPIs -->
+          <div class="col-6 col-lg-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted mb-1">Department Faculty</h6>
+                <h3 id="secretaryDeptFaculty" class="mb-0">0</h3>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+          <div class="col-6 col-lg-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted mb-1">Present Today</h6>
+                <h3 id="secretaryPresentToday" class="mb-0">0</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted mb-1">Pending Leaves</h6>
+                <h3 id="secretaryPendingLeaves" class="mb-0">0</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted mb-1">Active Rooms</h6>
+                <h3 id="secretaryActiveRooms" class="mb-0">0</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header">
+                <strong>Quick Actions</strong>
+              </div>
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-md-3 col-sm-6">
+                    <button class="btn btn-outline-primary w-100" onclick="window.location.href='/crmfms/public/modules/faculties/faculties.html'">
+                      <i class="fas fa-users"></i> Manage Users
+                    </button>
+                  </div>
+                  <div class="col-md-3 col-sm-6">
+                    <button class="btn btn-outline-success w-100" onclick="window.location.href='/crmfms/public/modules/rooms/rooms.html'">
+                      <i class="fas fa-building"></i> Manage Rooms
+                    </button>
+                  </div>
+                  <div class="col-md-3 col-sm-6">
+                    <button class="btn btn-outline-info w-100" onclick="window.location.href='/crmfms/public/modules/rooms/rooms.html'">
+                      <i class="fas fa-qrcode"></i> QR Codes
+                    </button>
+                  </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-warning w-100" onclick="window.location.href='/crmfms/public/modules/leaves/leaves.html'">
+                     <i class="fas fa-calendar-times"></i> Leave Requests
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-secondary w-100" onclick="window.location.href='/crmfms/public/modules/reports/reports.html'">
+                     <i class="fas fa-chart-bar"></i> Reports
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-danger w-100" onclick="window.location.href='/crmfms/public/modules/monitoring/monitoring.html'">
+                     <i class="fas fa-eye"></i> Monitoring
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-dark w-100" onclick="checkInOut()">
+                     <i class="fas fa-clock"></i> Time Clock
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-primary w-100" onclick="requestLeave()">
+                     <i class="fas fa-calendar-plus"></i> Request Leave
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Faculty Leave Requests & Classroom Monitoring -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm mb-3">
+             <div class="card-header d-flex align-items-center">
+               <strong>Faculty Leave Requests</strong>
+               <button id="refreshLeaveRequestsBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="facultyLeaveRequestsBox" style="max-height: 300px; overflow-y: auto;">
+               <div class="text-muted">Loading leave requests...</div>
+             </div>
+           </div>
+
+           <div class="card shadow-sm">
+             <div class="card-header d-flex align-items-center">
+               <strong>Classroom Check-ins Today</strong>
+               <button id="refreshClassroomBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="classroomCheckinsBox" style="max-height: 250px; overflow-y: auto;">
+               <div class="text-muted">Loading classroom activity...</div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Department Time-in Monitoring & QR Records -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm mb-3">
+             <div class="card-header d-flex align-items-center">
+               <strong>Department Time-in Today</strong>
+               <button id="refreshTimeInBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="departmentTimeInBox" style="max-height: 250px; overflow-y: auto;">
+               <div class="text-muted">Loading department check-ins...</div>
+             </div>
+           </div>
+
+           <div class="card shadow-sm">
+             <div class="card-header"><strong>QR Code Records</strong></div>
+             <div class="card-body" id="qrRecordsBox" style="max-height: 250px; overflow-y: auto;">
+               <div class="text-muted">Loading QR code records...</div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+
+     <!-- Program Head Dashboard -->
+     <div id="programHeadDashboard" style="display: none;">
+       <h4>Program Dashboard</h4>
+       <div class="row g-3">
+         <!-- Program KPIs -->
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Program Faculty</h6>
+               <h3 id="programFacultyCount" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Active Classes</h6>
+               <h3 id="programActiveClasses" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Program Attendance</h6>
+               <h3 id="programAttendanceRate" class="mb-0">0%</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Pending Requests</h6>
+               <h3 id="programPendingRequests" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+
+         <!-- Quick Actions -->
+         <div class="col-12">
+           <div class="card shadow-sm">
+             <div class="card-header">
+               <strong>Quick Actions</strong>
+             </div>
+             <div class="card-body">
+               <div class="row g-2">
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-primary w-100" onclick="window.location.href='/crmfms/public/modules/faculties/faculties.html'">
+                     <i class="fas fa-users"></i> Manage Faculty
+                   </button>
+                 </div>
+
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-info w-100" onclick="window.location.href='/crmfms/public/modules/leaves/leaves.html'">
+                     <i class="fas fa-calendar-times"></i> Leave Requests
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-warning w-100" onclick="window.location.href='/crmfms/public/modules/attendance/attendance.html'">
+                     <i class="fas fa-chart-bar"></i> Attendance Reports
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-secondary w-100" onclick="programHeadCheckIn()">
+                     <i class="fas fa-clock"></i> Time Clock
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-danger w-100" onclick="requestProgramLeave()">
+                     <i class="fas fa-calendar-plus"></i> Request Leave
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Classroom Monitoring & Faculty Management -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm mb-3">
+             <div class="card-header d-flex align-items-center">
+               <strong>Classroom Check-ins Today</strong>
+               <button id="refreshProgramClassroomBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="programClassroomCheckinsBox" style="max-height: 300px; overflow-y: auto;">
+               <div class="text-muted">Loading classroom activity...</div>
+             </div>
+           </div>
+
+           <div class="card shadow-sm">
+             <div class="card-header d-flex align-items-center">
+               <strong>Program Faculty Status</strong>
+               <button id="refreshProgramFacultyBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="programFacultyStatusBox" style="max-height: 250px; overflow-y: auto;">
+               <div class="text-muted">Loading faculty status...</div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Leave Requests & Program Analytics -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm mb-3">
+             <div class="card-header d-flex align-items-center">
+               <strong>Program Leave Requests</strong>
+               <button id="refreshProgramLeavesBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="programLeaveRequestsBox" style="max-height: 250px; overflow-y: auto;">
+               <div class="text-muted">Loading leave requests...</div>
+             </div>
+           </div>
+
+           <div class="card shadow-sm">
+             <div class="card-header"><strong>Program Performance</strong></div>
+             <div class="card-body" id="programPerformanceBox">
+               <div class="text-muted">Loading program analytics...</div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+
+     <!-- Faculty Dashboard -->
+     <div id="facultyDashboard" style="display: none;">
+       <h4>My Dashboard</h4>
+       <div class="row g-3">
+         <!-- Personal KPIs -->
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Today's Classes</h6>
+               <h3 id="facultyTodaySchedule" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Attendance Rate</h6>
+               <h3 id="facultyAttendanceRate" class="mb-0">0%</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Leave Balance</h6>
+               <h3 id="facultyLeaveBalance" class="mb-0">0</h3>
+             </div>
+           </div>
+         </div>
+         <div class="col-6 col-lg-3">
+           <div class="card shadow-sm">
+             <div class="card-body">
+               <h6 class="text-muted mb-1">Current Status</h6>
+               <h3 id="facultyCurrentStatus" class="mb-0">Out</h3>
+             </div>
+           </div>
+         </div>
+
+         <!-- Quick Actions -->
+         <div class="col-12">
+           <div class="card shadow-sm">
+             <div class="card-header">
+               <strong>Quick Actions</strong>
+             </div>
+             <div class="card-body">
+               <div class="row g-2">
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-primary w-100" onclick="facultyTimeIn()">
+                     <i class="fas fa-clock"></i> Department Time In
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-success w-100" onclick="facultyClassroomCheckIn()">
+                     <i class="fas fa-school"></i> Classroom Check-in
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-info w-100" onclick="window.location.href='/crmfms/public/modules/leaves/leaves.html'">
+                     <i class="fas fa-calendar-times"></i> My Leave Requests
+                   </button>
+                 </div>
+
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-secondary w-100" onclick="window.location.href='/crmfms/public/modules/attendance/attendance.html'">
+                     <i class="fas fa-chart-bar"></i> My Attendance
+                   </button>
+                 </div>
+                 <div class="col-md-3 col-sm-6">
+                   <button class="btn btn-outline-danger w-100" onclick="requestFacultyLeave()">
+                     <i class="fas fa-calendar-plus"></i> Request Leave
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Today's Schedule & Recent Activity -->
+         <div class="col-12 col-xl-6">
+
+
+           <div class="card shadow-sm">
+             <div class="card-header d-flex align-items-center">
+               <strong>Recent Check-ins</strong>
+               <button id="refreshFacultyCheckinsBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="facultyRecentCheckinsBox" style="max-height: 200px; overflow-y: auto;">
+               <div class="text-muted">Loading recent activity...</div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Leave Requests & Performance -->
+         <div class="col-12 col-xl-6">
+           <div class="card shadow-sm mb-3">
+             <div class="card-header d-flex align-items-center">
+               <strong>My Leave Requests</strong>
+               <button id="refreshFacultyLeavesBtn" class="btn btn-sm btn-outline-primary ms-auto">Refresh</button>
+             </div>
+             <div class="card-body" id="facultyLeaveRequestsBox" style="max-height: 250px; overflow-y: auto;">
+               <div class="text-muted">Loading leave requests...</div>
+             </div>
+           </div>
+
+           <div class="card shadow-sm">
+             <div class="card-header"><strong>Monthly Performance</strong></div>
+             <div class="card-body" id="facultyPerformanceBox">
+               <div class="text-muted">Loading performance data...</div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
 
     <!-- Staff Dashboard -->
     <div id="staffDashboard" style="display: none;">
@@ -340,7 +749,7 @@
   </main>
   </div> <!-- End main-content -->
   
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script src="/crmfms/public/assests/js/bootstrap.bundle.min.js"></script>
   <script src="/crmfms/public/modules/dashboard/index.js"></script>
 </body>
 </html>

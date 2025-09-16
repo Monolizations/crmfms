@@ -6,6 +6,9 @@ require_once __DIR__ . '/../../config/security.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Start session
+session_start();
+
 if (!isset($_SESSION['uid'])) {
   http_response_code(401);
   echo json_encode(['success'=>false, 'message'=>'Not logged in']);

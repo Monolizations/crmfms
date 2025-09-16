@@ -1,8 +1,35 @@
 class AccessControl {
   constructor() {
     this.pageRoles = {
+      // Admin only
       'admin/admin.html': ['admin'],
-      'faculties/faculties.html': ['admin', 'dean', 'secretary'],
+
+      // User/Faculty management
+      'faculties/faculties.html': ['admin', 'dean', 'secretary', 'program head'],
+
+      // Attendance and monitoring
+      'attendance/attendance.html': ['admin', 'faculty', 'program head'],
+      'monitoring/monitoring.html': ['admin', 'secretary'],
+
+      // Leave management
+      'leaves/leaves.html': ['admin', 'dean', 'secretary', 'program head', 'faculty'],
+
+      // Room and QR management
+      'rooms/rooms.html': ['admin', 'secretary'],
+
+
+
+      // Reporting
+      'reports/reports.html': ['admin', 'dean', 'secretary'],
+
+      // Department management
+      'departments/departments.html': ['admin', 'dean'],
+
+      // Check-in/Time clock
+      'checkin/checkin.html': ['admin', 'dean', 'secretary', 'program head', 'faculty'],
+
+      // Dashboard (all authenticated users)
+      'dashboard/index.html': ['admin', 'dean', 'secretary', 'program head', 'faculty', 'staff'],
     };
     this.init();
   }
@@ -13,8 +40,9 @@ class AccessControl {
 
   checkAccess() {
     const currentPath = window.location.pathname;
-    
-    if (currentPath.includes('login.html')) {
+
+    // Allow access to login page
+    if (currentPath.includes('login.html') || currentPath.includes('test_')) {
       return;
     }
 
@@ -26,25 +54,61 @@ class AccessControl {
     }
 
     // Check if the current path requires specific roles
-    let requiredRoles = null;
-    
-    // Check for specific page patterns
-    if (currentPath.includes('admin/admin.html')) {
-      requiredRoles = this.pageRoles['admin/admin.html'];
-    } else if (currentPath.includes('faculties/faculties.html')) {
-      requiredRoles = this.pageRoles['faculties/faculties.html'];
-    }
+    const requiredRoles = this.getRequiredRoles(currentPath);
 
-    if (requiredRoles) {
-      const hasPermission = user.roles.some(role => requiredRoles.includes(role));
+    if (requiredRoles && requiredRoles.length > 0) {
+      const hasPermission = this.hasRequiredRole(user.roles, requiredRoles, currentPath);
 
       if (!hasPermission) {
         this.showAccessDenied();
         return;
       }
     }
-    
+
+    // Additional checks for specific pages
+    if (currentPath.includes('faculties/faculties.html')) {
+      this.checkFacultyManagementAccess(user.roles);
+    }
+
     // If we get here, access is allowed
+  }
+
+  getRequiredRoles(path) {
+    // Check for specific page patterns
+    for (const [pagePattern, roles] of Object.entries(this.pageRoles)) {
+      if (path.includes(pagePattern)) {
+        return roles;
+      }
+    }
+    return null;
+  }
+
+  hasRequiredRole(userRoles, requiredRoles, path) {
+    // Check if user has any of the required roles
+    const hasBasicPermission = userRoles.some(role => requiredRoles.includes(role));
+
+    if (!hasBasicPermission) {
+      return false;
+    }
+
+    // Special handling for combined roles and restricted access
+    if (path.includes('faculties/faculties.html')) {
+      // Secretary can only manage program head and faculty
+      if (userRoles.includes('secretary') && !userRoles.includes('admin') && !userRoles.includes('dean')) {
+        // This is handled in the API, but we allow access here
+        return true;
+      }
+    }
+
+    return true;
+  }
+
+  checkFacultyManagementAccess(userRoles) {
+    // Additional client-side validation for faculty management
+    // This is mainly handled server-side, but we can add client-side warnings
+    if (userRoles.includes('secretary') && !userRoles.includes('admin') && !userRoles.includes('dean')) {
+      console.log('Secretary access: Limited to Program Head and Faculty management only');
+    }
   }
 
   redirectToLogin() {

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CRM FMS Database Setup Script
-echo "Setting up CRM FMS database..."
+echo "Setting up CRM FMS database tables..."
 
 # Database connection details
 DB_HOST="127.0.0.1"
@@ -9,29 +9,30 @@ DB_NAME="faculty_attendance_system"
 DB_USER="root"
 DB_PASS=""
 
-# Function to run SQL file
-run_sql() {
-    local file=$1
-    echo "Running $file..."
-    mysql -h$DB_HOST -u$DB_USER -p$DB_PASS $DB_NAME < $file
-    if [ $? -eq 0 ]; then
-        echo "✓ $file completed successfully"
-    else
-        echo "✗ Error running $file"
-        exit 1
-    fi
-}
+# Check if MySQL/MariaDB is running
+if ! pgrep -x "mysqld" > /dev/null && ! pgrep -x "mariadbd" > /dev/null; then
+    echo "Error: MySQL/MariaDB is not running. Please start the database service first."
+    exit 1
+fi
 
-# Run migrations in order
-run_sql "database_setup.sql"
-run_sql "migration_user_roles.sql"
-run_sql "migration_buildings_floors_rooms.sql"
-run_sql "migration_create_rooms_qr_codes.sql"
-run_sql "migration_create_attendance_table.sql"
-run_sql "migration_create_leave_requests_table.sql"
-run_sql "migration_create_archived_leave_requests.sql"
-run_sql "add_main_south_floors.sql"
-run_sql "migration_remove_staff_role.sql"
+# Run the clean setup SQL (includes database creation)
+echo "Setting up database and creating tables..."
+mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" < setup_database_clean.sql
 
-echo "Database setup complete!"
-echo "You can now access the application and the faculty/room dropdowns should work."
+# Ask if user wants sample data
+echo ""
+read -p "Do you want to install sample data for testing? (y/n): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Installing sample data..."
+    mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < setup_sample_data.sql
+    echo "Sample data installed successfully!"
+fi
+
+if [ $? -eq 0 ]; then
+    echo "Database setup completed successfully!"
+    echo "You can now access the application with database-backed system alerts."
+else
+    echo "Error: Failed to set up database. Please check your MySQL credentials and try again."
+    exit 1
+fi

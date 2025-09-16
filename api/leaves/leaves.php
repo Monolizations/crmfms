@@ -46,19 +46,49 @@ function archiveLeaveRequest($db, $leave_id) {
 }
 
 $db = (new Database())->getConnection();
-requireAuth($db);
+requireAuth();
 
 $uid = $_SESSION['uid'];
 $userRoles = $_SESSION['roles'] ?? [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   try {
+    $action = $_GET['action'] ?? '';
+
+    if ($action === 'balance') {
+      // Get leave balance for current user
+      // This is a simplified calculation - in a real system you'd have a leave_balance table
+      $stmt = $db->prepare("SELECT
+                           COUNT(*) as total_requests,
+                           SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_requests,
+                           SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_requests
+                           FROM leave_requests
+                           WHERE user_id = :user_id
+                           AND YEAR(requested_at) = YEAR(CURDATE())");
+      $stmt->execute([':user_id' => $uid]);
+      $leaveStats = $stmt->fetch();
+
+      // Calculate remaining balance (simplified: 10 days per year minus used)
+      $usedDays = $leaveStats['approved_requests'] ?? 0;
+      $remainingBalance = max(0, 10 - $usedDays);
+
+      echo json_encode(['balance' => $remainingBalance]);
+      exit;
+    }
+
     $showArchived = $_GET['archived'] ?? 'false';
     $showArchived = $showArchived === 'true';
 
+    // Check if user has faculty role - faculty cannot see request lists
+    if (in_array('faculty', $userRoles)) {
+      // Faculty users cannot view any leave request lists
+      echo json_encode(['items'=>[], 'archived'=>$showArchived, 'message'=>'Faculty users cannot view leave request lists']);
+      exit;
+    }
+
     if ($showArchived) {
       // Show archived requests
-      if (!empty(array_intersect($userRoles, ['dean','secretary','program head']))) {
+      if (!empty(array_intersect($userRoles, ['admin','dean','secretary','program head']))) {
         $stmt = $db->query("SELECT l.*, CONCAT(u.first_name,' ',u.last_name) AS user_name,
                                    (SELECT CONCAT(first_name,' ',last_name) FROM users WHERE user_id=l.reviewed_by) AS reviewer,
                                    l.approval_reason, l.rejection_reason, l.archived_at
@@ -77,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
       }
     } else {
       // Show only pending requests (active requests)
-      if (!empty(array_intersect($userRoles, ['dean','secretary','program head']))) {
+      if (!empty(array_intersect($userRoles, ['admin','dean','secretary','program head']))) {
         $stmt = $db->query("SELECT l.*, CONCAT(u.first_name,' ',u.last_name) AS user_name,
                                    (SELECT CONCAT(first_name,' ',last_name) FROM users WHERE user_id=l.reviewed_by) AS reviewer,
                                    l.approval_reason, l.rejection_reason

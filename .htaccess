@@ -1,18 +1,12 @@
- RewriteEngine On
+RewriteEngine On
 
- # Handle API routes
- RewriteCond %{REQUEST_URI} ^/api/
- RewriteRule ^api/(.*)$ /crmfms/api/$1 [L]
+# Route API requests
+RewriteRule ^api/(.*)$ api/$1 [L]
 
- # Handle static assets
- RewriteCond %{REQUEST_URI} ^/assets/
- RewriteRule ^assets/(.*)$ /public/assests/$1 [L]
+# Route public assets
+RewriteRule ^(assests|modules)/(.*)$ public/$1/$2 [L]
 
-# Handle modules
-RewriteCond %{REQUEST_URI} ^/modules/
-RewriteRule ^modules/(.*)$ /public/modules/$1 [L]
-
-# Default to index.html for root requests
+# Serve index.html for other requests
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^$ /index.html [L]
+RewriteRule ^.*$ index.html [L]

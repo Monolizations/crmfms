@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>FAMS • QR Scan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <link rel="preload" href="/crmfms/public/assests/css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/fontawesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     
   <style>
     body { 
@@ -56,6 +56,19 @@
   </style>
 </head>
 <body class="bg-light">
+  <!-- Back Button -->
+  <button id="backBtn" class="btn btn-secondary position-fixed" style="top: 10px; left: 10px; z-index: 1050;" onclick="window.history.back()" title="Go Back">
+    <i class="fas fa-arrow-left"></i> Back
+  </button>
+
+  <style>
+    @media (min-width: 992px) {
+      #backBtn {
+        left: 310px !important;
+      }
+    }
+  </style>
+
   <!-- Mobile Top Navigation -->
   <div class="top-navbar d-lg-none">
     <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -98,7 +111,7 @@
     </div>
   </div> <!-- End main-content -->
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script src="/crmfms/public/assests/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <script src="scan.js"></script>
 </body>

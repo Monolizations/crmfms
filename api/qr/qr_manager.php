@@ -19,7 +19,7 @@ function validateRequiredFields($input, $requiredFields) {
 
 try {
   $db = (new Database())->getConnection();
-  requireAuth($db, ['admin', 'dean', 'secretary']);
+  requireAuth(['admin', 'dean', 'secretary']);
 
   if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $action = $_GET['action'] ?? '';
@@ -155,7 +155,7 @@ try {
 
     if ($action === 'regenerate') {
       validateRequiredFields($input, ['code_id']);
-      requireAuth($db, ['admin', 'dean']); // Only admin and dean can regenerate
+      requireAuth(['admin', 'dean']); // Only admin and dean can regenerate
       
       $code_id = (int)$input['code_id'];
       
@@ -185,7 +185,7 @@ try {
     }
     
     if ($action === 'bulk_generate') {
-      requireAuth($db, ['admin', 'dean']); // Only admin and dean can bulk generate
+      requireAuth(['admin', 'dean']); // Only admin and dean can bulk generate
       
       $type = $input['type'] ?? 'all'; // 'faculty', 'room', or 'all'
       $generatedCount = 0;
@@ -228,7 +228,7 @@ try {
     
     if ($action === 'delete') {
       validateRequiredFields($input, ['code_id']);
-      requireAuth($db, ['admin', 'dean']); // Only admin and dean can delete
+      requireAuth(['admin', 'dean']); // Only admin and dean can delete
       
       $code_id = (int)$input['code_id'];
       $stmt = $db->prepare("DELETE FROM qr_codes WHERE code_id = :id");

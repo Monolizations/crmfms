@@ -82,7 +82,7 @@ CREATE TABLE qr_codes (
 ## Frontend Interface
 
 ### QR Management Page
-Access the QR management interface at `/public/modules/qr/qr.html`
+Access the QR management interface at `/public/modules/rooms/rooms.html`
 
 Features:
 - View all QR codes in a table

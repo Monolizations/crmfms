@@ -59,11 +59,15 @@ function updateTime() {
 }
 
 function setupEventListeners() {
-  const checkInBtn = document.getElementById('checkInBtn');
-  const checkOutBtn = document.getElementById('checkOutBtn');
+  const scanDepartmentBtn = document.getElementById('scanDepartmentBtn');
+  const scanRoomBtn = document.getElementById('scanRoomBtn');
 
-  checkInBtn.addEventListener('click', handleCheckIn);
-  checkOutBtn.addEventListener('click', handleCheckOut);
+  if (scanDepartmentBtn) {
+    scanDepartmentBtn.addEventListener('click', () => startQRScan('department'));
+  }
+  if (scanRoomBtn) {
+    scanRoomBtn.addEventListener('click', () => startQRScan('room'));
+  }
 }
 
 async function loadAttendanceStatus() {
@@ -84,21 +88,15 @@ function updateStatusDisplay(data) {
   const statusCard = document.getElementById('statusCard');
   const statusTitle = document.getElementById('statusTitle');
   const statusMessage = document.getElementById('statusMessage');
-  const checkInBtn = document.getElementById('checkInBtn');
-  const checkOutBtn = document.getElementById('checkOutBtn');
 
   if (data.checkedIn) {
     statusCard.className = 'card status-card mb-4';
     statusTitle.textContent = 'Currently Checked In';
-    statusMessage.textContent = `Checked in at ${data.checkInTime || 'Unknown time'}`;
-    checkInBtn.disabled = true;
-    checkOutBtn.disabled = false;
+    statusMessage.textContent = `Checked in at ${data.checkInTime || 'Unknown time'}. Scan QR code to check out.`;
   } else {
     statusCard.className = 'card bg-light mb-4';
-    statusTitle.textContent = 'Not Checked In';
-    statusMessage.textContent = 'Please check in to start your attendance.';
-    checkInBtn.disabled = false;
-    checkOutBtn.disabled = true;
+    statusTitle.textContent = 'Ready for Check-in';
+    statusMessage.textContent = 'Scan Department or Classroom QR codes to record your attendance.';
   }
 
   // Update today's summary
@@ -107,77 +105,133 @@ function updateStatusDisplay(data) {
   document.getElementById('totalHours').textContent = data.totalHours || '0h 0m';
 }
 
-async function handleCheckIn() {
-  try {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
 
-    if (confirm(`Check in at ${timeString}?`)) {
-      const response = await fetch('/crmfms/api/attendance/checkin.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          timestamp: now.toISOString()
-        })
-      });
 
-      const data = await response.json();
+let qrScanner = null;
 
-      if (data.success) {
-        showAlert('Successfully checked in!', 'success');
-        loadAttendanceStatus(); // Refresh status
-      } else {
-        showAlert(data.message || 'Check-in failed', 'danger');
-      }
+function startQRScan(type) {
+  const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+  modal.show();
+
+  // Initialize scanner after modal is shown
+  setTimeout(() => {
+    initQRScanner(type);
+  }, 500);
+}
+
+function initQRScanner(type) {
+  const video = document.getElementById('qrVideo');
+  const status = document.getElementById('qrScanStatus');
+
+  // Stop any existing scanner
+  if (qrScanner) {
+    qrScanner.stop();
+  }
+
+  qrScanner = new Instascan.Scanner({ video: video });
+
+  qrScanner.addListener('scan', function (content) {
+    handleQRCode(content, type);
+  });
+
+  Instascan.Camera.getCameras().then(function (cameras) {
+    if (cameras.length > 0) {
+      // Use back camera if available
+      const backCamera = cameras.find(camera => camera.name.toLowerCase().includes('back'));
+      qrScanner.start(backCamera || cameras[0]);
+      status.textContent = 'Camera ready. Point at QR code to scan.';
+    } else {
+      status.textContent = 'No cameras found.';
+      showAlert('No cameras found on this device.', 'danger');
     }
-  } catch (error) {
-    console.error('Check-in error:', error);
-    showAlert('Error during check-in', 'danger');
+  }).catch(function (e) {
+    console.error(e);
+    status.textContent = 'Camera access denied.';
+    showAlert('Camera access denied. Please allow camera access.', 'danger');
+  });
+}
+
+function handleQRCode(qrData, type) {
+  // Stop scanner
+  if (qrScanner) {
+    qrScanner.stop();
+  }
+
+  const status = document.getElementById('qrScanStatus');
+  status.textContent = 'QR code detected. Processing...';
+
+  // Get geolocation
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        // Send QR data with location to server
+        sendQRData(qrData, latitude, longitude, type);
+      },
+      (error) => {
+        console.warn('Geolocation error:', error);
+        // Send QR data without location
+        sendQRData(qrData, null, null, type);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  } else {
+    // Send QR data without location
+    sendQRData(qrData, null, null, type);
   }
 }
 
-async function handleCheckOut() {
-  try {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
+function sendQRData(qrData, latitude, longitude, type) {
+  const status = document.getElementById('qrScanStatus');
 
-    if (confirm(`Check out at ${timeString}?`)) {
-      const response = await fetch('/crmfms/api/attendance/checkout.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          timestamp: now.toISOString()
-        })
-      });
+  // Capture client-side scan timestamp
+  const scanTimestamp = new Date().toISOString();
 
-      const data = await response.json();
-
+  fetch('/crmfms/api/attendance/attendance.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      code_value: qrData,
+      latitude: latitude,
+      longitude: longitude,
+      scan_timestamp: scanTimestamp
+    })
+  })
+    .then(response => response.json())
+    .then(data => {
       if (data.success) {
-        showAlert('Successfully checked out!', 'success');
-        loadAttendanceStatus(); // Refresh status
+        status.textContent = data.message;
+        status.style.color = 'green';
+
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          bootstrap.Modal.getInstance(document.getElementById('qrScannerModal')).hide();
+          loadAttendanceStatus(); // Refresh status
+        }, 2000);
       } else {
-        showAlert(data.message || 'Check-out failed', 'danger');
+        status.textContent = data.message || 'Invalid QR code';
+        status.style.color = 'red';
       }
-    }
-  } catch (error) {
-    console.error('Check-out error:', error);
-    showAlert('Error during check-out', 'danger');
-  }
+    })
+    .catch(error => {
+      console.error('QR scan error:', error);
+      status.textContent = 'Error processing QR code';
+      status.style.color = 'red';
+    });
 }
+
+// Stop scanner when modal is closed
+document.getElementById('qrScannerModal').addEventListener('hidden.bs.modal', function () {
+  if (qrScanner) {
+    qrScanner.stop();
+    qrScanner = null;
+  }
+});
 
 function showAlert(message, type) {
   // Create alert element

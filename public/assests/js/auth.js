@@ -9,10 +9,20 @@ class AuthManager {
   loadUser() {
     const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
     const authStatus = localStorage.getItem('isAuthenticated') || sessionStorage.getItem('isAuthenticated');
-    
+
     if (userData && authStatus === 'true') {
-      this.user = JSON.parse(userData);
-      this.isAuthenticated = true;
+      try {
+        this.user = JSON.parse(userData);
+        this.isAuthenticated = true;
+      } catch (e) {
+        // Invalid user data, clear it
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('isAuthenticated');
+        this.user = null;
+        this.isAuthenticated = false;
+      }
     }
   }
 
@@ -98,7 +108,7 @@ class AuthManager {
       }
     ];
 
-    // Time Clock for faculty, program head, secretary
+    // Time Clock - Department check-in for faculty, program head, secretary
     if (this.hasRole('faculty') || this.hasRole('program head') || this.hasRole('secretary')) {
       menu.push({
         title: 'Time Clock',
@@ -108,6 +118,7 @@ class AuthManager {
       });
     }
 
+    // User Management - Admin, Dean, Secretary (with restrictions)
     if (this.hasRole('admin') || this.hasRole('dean') || this.hasRole('secretary')) {
       menu.push({
         title: 'User Management',
@@ -117,60 +128,85 @@ class AuthManager {
       });
     }
 
-    if (this.hasRole('admin') || this.hasRole('faculty')) {
+    // Faculty Management - Program Head specific
+    if (this.hasRole('program head')) {
+      menu.push({
+        title: 'My Faculty',
+        icon: 'fas fa-users-cog',
+        href: '/crmfms/public/modules/faculties/faculties.html',
+        roles: ['program head']
+      });
+    }
+
+    // Attendance - Admin, Faculty, Program Head
+    if (this.hasRole('admin') || this.hasRole('faculty') || this.hasRole('program head')) {
       menu.push({
         title: 'Attendance',
-        icon: 'fas fa-clock',
+        icon: 'fas fa-chart-line',
         href: '/crmfms/public/modules/attendance/attendance.html',
-        roles: ['admin', 'faculty']
+        roles: ['admin', 'faculty', 'program head']
       });
     }
 
-    if (this.hasRole('admin') || this.hasRole('faculty')) {
+    // Leave Requests - All roles can view/manage leaves based on permissions
+    if (this.hasRole('admin') || this.hasRole('dean') || this.hasRole('secretary') || this.hasRole('program head') || this.hasRole('faculty')) {
+      const leaveTitle = this.hasRole('faculty') ? 'My Leaves' :
+                        this.hasRole('admin') || this.hasRole('dean') ? 'Leave Approvals' :
+                        'Leave Requests';
       menu.push({
-        title: 'Leave Requests',
+        title: leaveTitle,
         icon: 'fas fa-calendar-times',
         href: '/crmfms/public/modules/leaves/leaves.html',
-        roles: ['admin', 'faculty']
+        roles: ['admin', 'dean', 'secretary', 'program head', 'faculty']
       });
     }
 
-    if (this.hasRole('admin')) {
+    // Rooms & QR Management - Admin, Secretary
+    if (this.hasRole('admin') || this.hasRole('secretary')) {
       menu.push({
         title: 'Rooms & QR',
         icon: 'fas fa-qrcode',
         href: '/crmfms/public/modules/rooms/rooms.html',
-        roles: ['admin']
+        roles: ['admin', 'secretary']
       });
     }
 
-    if (this.hasRole('admin') || this.hasRole('faculty')) {
-      menu.push({
-        title: 'Schedules',
-        icon: 'fas fa-calendar-alt',
-        href: '/crmfms/public/modules/schedules/schedules.html',
-        roles: ['admin', 'faculty']
-      });
-    }
 
-    if (this.hasRole('admin')) {
+
+    // Monitoring - Admin, Secretary (for classroom monitoring)
+    if (this.hasRole('admin') || this.hasRole('secretary')) {
       menu.push({
         title: 'Monitoring',
         icon: 'fas fa-eye',
         href: '/crmfms/public/modules/monitoring/monitoring.html',
-        roles: ['admin']
+        roles: ['admin', 'secretary']
       });
     }
 
-    if (this.hasRole('admin')) {
+    // Reports - Admin, Secretary, Dean
+    if (this.hasRole('admin') || this.hasRole('secretary') || this.hasRole('dean')) {
+      const reportTitle = this.hasRole('dean') ? 'Department Reports' :
+                         this.hasRole('secretary') ? 'Reports' :
+                         'Reports';
       menu.push({
-        title: 'Reports',
+        title: reportTitle,
         icon: 'fas fa-chart-bar',
         href: '/crmfms/public/modules/reports/reports.html',
-        roles: ['admin']
+        roles: ['admin', 'dean', 'secretary']
       });
     }
 
+    // Department Management - Admin, Dean
+    if (this.hasRole('admin') || this.hasRole('dean')) {
+      menu.push({
+        title: 'Department',
+        icon: 'fas fa-building',
+        href: '/crmfms/public/modules/departments/departments.html',
+        roles: ['admin', 'dean']
+      });
+    }
+
+    // Admin Settings - Admin only
     if (this.hasRole('admin')) {
       menu.push({
         title: 'Admin Settings',

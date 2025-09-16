@@ -40,6 +40,14 @@ async function loadLeaves() {
     }
 
     const data = await res.json();
+    
+    // Check if this is a faculty user response
+    if (data.message && data.message.includes('Faculty users cannot view leave request lists')) {
+      // Faculty users - show notice and hide list
+      showFacultyInterface();
+      return;
+    }
+    
     table.innerHTML = "";
     if (!data.items || data.items.length === 0) {
       table.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No leave requests</td></tr>`;
@@ -292,6 +300,69 @@ async function reviewLeave(id, status) {
   openReviewModal(id, status);
 }
 
+// Function to show faculty-specific interface
+function showFacultyInterface() {
+  // Hide view toggle buttons for faculty
+  const viewToggleButtons = document.getElementById('viewToggleButtons');
+  if (viewToggleButtons) {
+    viewToggleButtons.style.display = 'none';
+  }
+  
+  // Show faculty notice
+  const facultyNotice = document.getElementById('facultyNotice');
+  if (facultyNotice) {
+    facultyNotice.classList.remove('d-none');
+  }
+  
+  // Hide leave list card for faculty
+  const leaveListCard = document.getElementById('leaveListCard');
+  if (leaveListCard) {
+    leaveListCard.style.display = 'none';
+  }
+  
+  // Don't load leaves for faculty users since they can't see the list
+  return;
+}
+
+// Function to show admin/supervisor interface
+function showAdminInterface() {
+  // Show view toggle buttons for admins/supervisors
+  const viewToggleButtons = document.getElementById('viewToggleButtons');
+  if (viewToggleButtons) {
+    viewToggleButtons.style.display = 'block';
+  }
+  
+  // Hide faculty notice
+  const facultyNotice = document.getElementById('facultyNotice');
+  if (facultyNotice) {
+    facultyNotice.classList.add('d-none');
+  }
+  
+  // Show leave list card for admins/supervisors
+  const leaveListCard = document.getElementById('leaveListCard');
+  if (leaveListCard) {
+    leaveListCard.style.display = 'block';
+  }
+}
+
+// Check user role and show appropriate interface
+function checkUserRoleAndShowInterface() {
+  const user = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+  const userRoles = user.roles || [];
+  
+  if (userRoles.includes('faculty')) {
+    showFacultyInterface();
+    // Faculty users don't need to load leaves since they can't see the list
+    return false;
+  } else {
+    showAdminInterface();
+    return true;
+  }
+}
+
 // Initial load
+const shouldLoadLeaves = checkUserRoleAndShowInterface();
 checkArchivePermissions();
-loadLeaves();
+if (shouldLoadLeaves) {
+  loadLeaves();
+}

@@ -2,6 +2,9 @@
 const API_URL = "/crmfms/api/rooms/rooms.php";
 const BUILDINGS_API_URL = "/crmfms/api/buildings/buildings.php";
 const FLOORS_API_URL = "/crmfms/api/floors/floors.php";
+
+// Department QR Code data
+const DEPARTMENT_QR_DATA = '{"type":"department","department_id":1,"department_name":"Main Department","purpose":"Time In/Time Out","status":"active","created":"2025-09-13 07:53:49"}';
 const roomTable = document.getElementById("roomTable");
 
 let addRoomModal;
@@ -62,17 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
         addRoomForm.reset();
         addRoomModal.hide();
         loadRooms();
-        // Trigger QR code download and preview
+        // Show QR code preview only (no auto-download)
         if (data.qr_code_url) {
-          // Preview
           viewQrCode(data.qr_code_url, document.getElementById("addRoomCode").value);
-          // Download
-          const a = document.createElement('a');
-          a.href = data.qr_code_url;
-          a.download = `QR_Code_${document.getElementById("addRoomCode").value}.png`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
         }
       }
     } catch (error) {
@@ -130,6 +125,13 @@ document.addEventListener('DOMContentLoaded', () => {
       viewQrCode(qrCodeUrl, roomCode);
     }
   });
+
+  // Check user permissions and show/hide UI elements
+  const canModify = window.auth && (window.auth.isAdmin() || window.auth.isDean() || window.auth.isSecretary());
+  const addRoomBtn = document.getElementById('addRoomBtn');
+  if (addRoomBtn) {
+    addRoomBtn.style.display = canModify ? 'inline-block' : 'none';
+  }
 
   // Initial load
   fetchBuildings();
@@ -197,6 +199,22 @@ async function loadRooms() {
     }
 
     data.items.forEach(room => {
+      // Check user permissions for action buttons
+      const canModify = window.auth && (window.auth.isAdmin() || window.auth.isDean() || window.auth.isSecretary());
+      const actionsHtml = canModify ? `
+        <button class="btn btn-sm btn-primary edit-room-btn"
+          data-room-id="${room.room_id}"
+          data-floor-id="${room.floor_id}"
+          data-room-code="${room.room_code}"
+          data-room-name="${room.name}"
+        >Edit</button>
+        <button class="btn btn-sm btn-danger delete-room-btn ms-1" data-room-id="${room.room_id}">Delete</button>
+        <button class="btn btn-sm btn-warning toggle-status-btn ms-1" data-room-id="${room.room_id}">Toggle Active</button>
+        ${room.qr_code_url ? `<button class="btn btn-sm btn-info view-qr-btn ms-1" data-qr-code-url="${room.qr_code_url}" data-room-code="${room.room_code}">View QR</button>` : ''}
+      ` : `
+        ${room.qr_code_url ? `<button class="btn btn-sm btn-info view-qr-btn" data-qr-code-url="${room.qr_code_url}" data-room-code="${room.room_code}">View QR</button>` : '<span class="text-muted">No QR</span>'}
+      `;
+
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${room.room_id}</td>
@@ -206,17 +224,7 @@ async function loadRooms() {
         <td>${room.name}</td>
         <td>${room.qr_code_url ? `<img src="${room.qr_code_url}" alt="QR Code" style="width: 50px; height: 50px;">` : 'None'}</td>
         <td><span class="badge ${room.status === 'active' ? 'bg-success' : 'bg-secondary'}">${room.status}</span></td>
-        <td>
-          <button class="btn btn-sm btn-primary edit-room-btn" 
-            data-room-id="${room.room_id}" 
-            data-floor-id="${room.floor_id}" 
-            data-room-code="${room.room_code}" 
-            data-room-name="${room.name}"
-          >Edit</button>
-          <button class="btn btn-sm btn-danger delete-room-btn ms-1" data-room-id="${room.room_id}">Delete</button>
-          <button class="btn btn-sm btn-warning toggle-status-btn ms-1" data-room-id="${room.room_id}">Toggle Active</button>
-          ${room.qr_code_url ? `<button class="btn btn-sm btn-info view-qr-btn ms-1" data-qr-code-url="${room.qr_code_url}" data-room-code="${room.room_code}">View QR</button>` : ''}
-        </td>
+        <td>${actionsHtml}</td>
       `;
       roomTable.appendChild(row);
     });
@@ -287,4 +295,23 @@ function viewQrCode(qrCodeUrl, identifier) {
   downloadQrBtn.href = qrCodeUrl;
   downloadQrBtn.download = `QR_Code_${identifier}.png`;
   qrViewerModal.show();
+}
+
+// Department QR Code functions
+function viewDepartmentQR() {
+  const qrCodeUrl = `/crmfms/api/qr/generate.php?data=${encodeURIComponent(DEPARTMENT_QR_DATA)}&size=400`;
+  qrCodeImage.src = qrCodeUrl;
+  downloadQrBtn.href = qrCodeUrl;
+  downloadQrBtn.download = 'Department_QR_Code.png';
+  qrViewerModal.show();
+}
+
+function downloadDepartmentQR() {
+  const qrCodeUrl = `/crmfms/api/qr/generate.php?data=${encodeURIComponent(DEPARTMENT_QR_DATA)}&size=400`;
+  const link = document.createElement('a');
+  link.href = qrCodeUrl;
+  link.download = 'Department_QR_Code.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }

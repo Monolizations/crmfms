@@ -8,7 +8,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
   $db = (new Database())->getConnection();
-  requireAuth($db, ['admin', 'dean', 'secretary']);
+  requireAuth(['admin', 'dean', 'secretary']);
 
   $stmt = $db->query("SELECT role_id, role_name FROM roles ORDER BY role_name ASC");
   $roles = $stmt->fetchAll();

@@ -1,4 +1,7 @@
 <?php
+// Set timezone to Manila (UTC+8) for consistent time handling across the application
+date_default_timezone_set('Asia/Manila');
+
 class Database {
   private $conn;
   public function getConnection() {
@@ -7,7 +10,8 @@ class Database {
     $db   = 'faculty_attendance_system';
     $user = 'root';
     $pass = '';
-    $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
+    $socket = '/opt/lampp/var/mysql/mysql.sock';
+    $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4;unix_socket=$socket";
     $opts = [
       PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
       PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC

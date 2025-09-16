@@ -26,10 +26,27 @@ try {
   $scanned_code_value = $input['code_value'];
   $user_id = $_SESSION['uid']; // The user who is scanning
 
+
   // 1. Validate QR code and get its type and ref_id
+  $qr_info = null;
+  
+  // First try direct lookup (old format)
   $stmt = $db->prepare("SELECT code_type, ref_id FROM qr_codes WHERE code_value = :cv LIMIT 1");
   $stmt->execute([':cv' => $scanned_code_value]);
   $qr_info = $stmt->fetch();
+  
+  // If not found, try parsing as JSON (new format)
+  if (!$qr_info) {
+    $decoded = json_decode($scanned_code_value, true);
+    if ($decoded && isset($decoded['type']) && $decoded['type'] === 'room') {
+      // For room QR codes, we need to find the corresponding qr_codes entry
+      // Convert to int to handle string/int mismatch
+      $roomId = (int)$decoded['room_id'];
+      $stmt = $db->prepare("SELECT code_type, ref_id FROM qr_codes WHERE code_type = 'room' AND ref_id = :rid LIMIT 1");
+      $stmt->execute([':rid' => $roomId]);
+      $qr_info = $stmt->fetch();
+    }
+  }
 
   if (!$qr_info) {
     http_response_code(404);

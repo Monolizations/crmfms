@@ -18,9 +18,9 @@ function validateRequiredFields($input, $requiredFields) {
 
 try {
   $db = (new Database())->getConnection();
-  requireAuth($db, ['admin', 'dean']); // Only admin and dean can manage floors
 
   if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    requireAuth(['admin', 'dean', 'secretary']); // Allow secretaries to view floors for room management
     $building_id = $_GET['building_id'] ?? null;
     if ($building_id) {
       $stmt = $db->prepare("SELECT * FROM floors WHERE building_id = :bid ORDER BY floor_number ASC");
@@ -34,6 +34,7 @@ try {
   }
 
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireAuth(['admin', 'dean']); // Only admin and dean can modify floors
     $input = json_decode(file_get_contents('php://input'), true);
     $action = $input['action'] ?? '';
 

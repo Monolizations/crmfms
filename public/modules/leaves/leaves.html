@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <title>FAMS • Leave Requests</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" href="/crmfms/public/assests/css/bootstrap.min.css">
   <link rel="preload" href="/crmfms/public/assests/css/app.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="/crmfms/public/assests/css/fontawesome/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <script src="/crmfms/public/assests/js/css-loader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script src="/crmfms/public/assests/js/bootstrap.bundle.min.js"></script>
 
   <!-- Fallback for browsers that don't support preload -->
   <noscript>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="/crmfms/public/assests/css/app.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    
+    
   </noscript>
   <!-- Inline critical CSS to prevent FOUC -->
   <style>
@@ -63,6 +63,19 @@
   </style>
 </head>
 <body class="bg-light">
+  <!-- Back Button -->
+  <button id="backBtn" class="btn btn-secondary position-fixed" style="top: 10px; left: 10px; z-index: 1050;" onclick="window.history.back()" title="Go Back">
+    <i class="fas fa-arrow-left"></i> Back
+  </button>
+
+  <style>
+    @media (min-width: 992px) {
+      #backBtn {
+        left: 310px !important;
+      }
+    }
+  </style>
+
   <!-- Mobile Top Navigation -->
   <div class="top-navbar d-lg-none">
     <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -104,18 +117,24 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#leaveRequestModal">
           Request New Leave
         </button>
-        <button type="button" class="btn btn-outline-secondary ms-2" id="archiveOldBtn" style="display: none;">
+        <button type="button" class="btn btn-secondary ms-2" id="archiveOldBtn" style="display: none;">
           <i class="fas fa-archive me-1"></i>Archive Old Requests
         </button>
       </div>
-      <div class="btn-group" role="group">
+      <div class="btn-group" role="group" id="viewToggleButtons" style="display: none;">
         <button type="button" class="btn btn-outline-primary active" id="showActiveBtn">
           <i class="fas fa-clock me-1"></i>Active Requests
         </button>
-        <button type="button" class="btn btn-outline-secondary" id="showArchivedBtn">
+        <button type="button" class="btn btn-secondary" id="showArchivedBtn">
           <i class="fas fa-archive me-1"></i>Archived Requests
         </button>
       </div>
+    </div>
+
+    <!-- Faculty Notice -->
+    <div id="facultyNotice" class="alert alert-info d-none" role="alert">
+      <i class="fas fa-info-circle me-2"></i>
+      <strong>Faculty Access:</strong> You can request new leave applications using the button above. Only administrators and supervisors can view and manage leave requests.
     </div>
 
     <!-- Leave Request Modal -->
@@ -158,7 +177,7 @@
     </div>
 
     <!-- Leave List -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm" id="leaveListCard">
       <div class="card-body">
         <h6>Requests</h6>
         <div class="table-responsive">

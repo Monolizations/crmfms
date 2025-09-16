@@ -43,7 +43,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
       // Redirect based on user roles
       if (data.user.roles && data.user.roles.includes('admin')) {
-        window.location.href = "/crmfms/public/modules/admin/admin.html";
+        window.location.href = "/crmfms/public/modules/dashboard/index.html";
       } else {
         window.location.href = "/crmfms/public/modules/dashboard/index.html";
       }
