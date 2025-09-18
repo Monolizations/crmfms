@@ -137,7 +137,21 @@ try {
     $action = $input['action'] ?? '';
 
     if ($action === 'create') {
-      validateRequiredFields($input, ['employee_id', 'first_name', 'last_name', 'email', 'password', 'roles']);
+      validateRequiredFields($input, ['first_name', 'last_name', 'email', 'password', 'roles']);
+
+      // Generate next employee_id starting from CRIM001
+      $stmt = $db->prepare("SELECT employee_id FROM users WHERE employee_id LIKE 'CRIM%' ORDER BY CAST(SUBSTRING(employee_id, 5) AS UNSIGNED) DESC LIMIT 1");
+      $stmt->execute();
+      $lastEmployee = $stmt->fetch();
+
+      if ($lastEmployee) {
+        $lastNumber = (int)substr($lastEmployee['employee_id'], 4);
+        $nextNumber = $lastNumber + 1;
+      } else {
+        $nextNumber = 1;
+      }
+
+      $employee_id = 'CRIM' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
       // Get logged-in user's roles
       $loggedInUserRoles = $_SESSION['roles'] ?? [];
@@ -146,7 +160,7 @@ try {
       if (in_array('secretary', $loggedInUserRoles)) {
         $allowedRoleNames = ['program head', 'faculty'];
         $selectedRoleIds = $input['roles'] ?? [];
-        
+
         // Fetch role names for selected role IDs
         $placeholders = implode(',', array_fill(0, count($selectedRoleIds), '?'));
         $stmt = $db->prepare("SELECT role_name FROM roles WHERE role_id IN ($placeholders)");
@@ -167,7 +181,7 @@ try {
       $stmt = $db->prepare("INSERT INTO users(employee_id,first_name,last_name,email,password_hash,status)
                             VALUES(:emp,:fn,:ln,:em,:pw,'active')");
       $stmt->execute([
-        ':emp'=>$input['employee_id'],
+        ':emp'=>$employee_id,
         ':fn'=>$input['first_name'],
         ':ln'=>$input['last_name'],
         ':em'=>$input['email'],
@@ -195,7 +209,7 @@ try {
          }
        }
 
-      echo json_encode(['success'=>true,'message'=>'User created successfully']);
+      echo json_encode(['success'=>true,'message'=>'User created successfully','employee_id'=>$employee_id]);
       exit;
     }
 

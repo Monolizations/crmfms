@@ -149,30 +149,30 @@ CREATE TABLE IF NOT EXISTS schedules (
 -- Insert test users
 -- Admin users
 INSERT IGNORE INTO users (employee_id, first_name, last_name, email, password_hash, status) VALUES
-('ADMIN001', 'Admin', 'User', 'admin@crmfms.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active'),
-('ADMIN002', 'Sarah', 'Johnson', 'sarah.johnson@crmfms.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active'),
-('ADMIN003', 'Michael', 'Chen', 'michael.chen@crmfms.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active');
+('CRIM001', 'Admin', 'User', 'admin@crmfms.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active'),
+('CRIM002', 'Sarah', 'Johnson', 'sarah.johnson@crmfms.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active'),
+('CRIM003', 'Michael', 'Chen', 'michael.chen@crmfms.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active');
 
 -- Staff users
 INSERT IGNORE INTO users (employee_id, first_name, last_name, email, password_hash, status) VALUES
-('STAFF001', 'Emily', 'Davis', 'emily.davis@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active'),
-('STAFF002', 'David', 'Wilson', 'david.wilson@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active'),
-('STAFF003', 'Lisa', 'Brown', 'lisa.brown@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active'),
-('STAFF004', 'James', 'Taylor', 'james.taylor@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active'),
-('STAFF005', 'Maria', 'Garcia', 'maria.garcia@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active');
+('CRIM004', 'Emily', 'Davis', 'emily.davis@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active'),
+('CRIM005', 'David', 'Wilson', 'david.wilson@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active'),
+('CRIM006', 'Lisa', 'Brown', 'lisa.brown@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active'),
+('CRIM007', 'James', 'Taylor', 'james.taylor@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active'),
+('CRIM008', 'Maria', 'Garcia', 'maria.garcia@crmfms.local', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyJgaT9M', 'active');
 
 -- Faculty users
 INSERT IGNORE INTO users (employee_id, first_name, last_name, email, password_hash, status) VALUES
-('FAC001', 'John', 'Smith', 'john.smith@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC002', 'Sarah', 'Williams', 'sarah.williams@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC003', 'Robert', 'Jones', 'robert.jones@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC004', 'Jennifer', 'Miller', 'jennifer.miller@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC005', 'William', 'Anderson', 'william.anderson@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC006', 'Elizabeth', 'Thomas', 'elizabeth.thomas@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC007', 'Christopher', 'Jackson', 'christopher.jackson@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC008', 'Jessica', 'White', 'jessica.white@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC009', 'Daniel', 'Harris', 'daniel.harris@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
-('FAC010', 'Amanda', 'Martin', 'amanda.martin@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active');
+('CRIM009', 'John', 'Smith', 'john.smith@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM010', 'Sarah', 'Williams', 'sarah.williams@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM011', 'Robert', 'Jones', 'robert.jones@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM012', 'Jennifer', 'Miller', 'jennifer.miller@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM013', 'William', 'Anderson', 'william.anderson@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM014', 'Elizabeth', 'Thomas', 'elizabeth.thomas@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM015', 'Christopher', 'Jackson', 'christopher.jackson@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM016', 'Jessica', 'White', 'jessica.white@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM017', 'Daniel', 'Harris', 'daniel.harris@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active'),
+('CRIM018', 'Amanda', 'Martin', 'amanda.martin@crmfms.local', '$2y$10$IkgOKGm6Q5a6T8nBzsv2.eeBd9oFQZ', 'active');
 
 -- Assign roles to users
 -- Get role IDs

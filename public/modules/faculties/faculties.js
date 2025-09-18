@@ -44,15 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
   addUserForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const selectedRoles = Array.from(addRolesCheckboxes.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
-    const body = {
-      action: "create",
-      employee_id: document.getElementById("addEmployeeId").value,
-      first_name: document.getElementById("addFirstName").value,
-      last_name: document.getElementById("addLastName").value,
-      email: document.getElementById("addEmail").value,
-      password: document.getElementById("addPassword").value,
-      roles: selectedRoles
-    };
+     const body = {
+       action: "create",
+       first_name: document.getElementById("addFirstName").value,
+       last_name: document.getElementById("addLastName").value,
+       email: document.getElementById("addEmail").value,
+       password: document.getElementById("addPassword").value,
+       roles: selectedRoles
+     };
     try {
       const res = await fetch(API_URL, {
         method: "POST",
@@ -60,14 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
         credentials: "include",
         body: JSON.stringify(body)
       });
-      const data = await res.json();
-      alert(data.message || (data.success ? "User created successfully" : "Error creating user"));
-       if (data.success) {
-         addUserForm.reset();
-         addUserModal.hide();
-         loadUsers(currentPage);
-         loadDeanInfo();
-       }
+       const data = await res.json();
+       alert(data.message || (data.success ? `User created successfully with Employee ID: ${data.employee_id}` : "Error creating user"));
+        if (data.success) {
+          addUserForm.reset();
+          addUserModal.hide();
+          loadUsers(currentPage);
+          loadDeanInfo();
+        }
     } catch (error) {
       console.error("Failed to create user:", error);
       alert("An error occurred while creating the user.");
