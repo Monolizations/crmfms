@@ -8,7 +8,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
   $db = (new Database())->getConnection();
-  requireAuth(['secretary']);
+  requireAuth(['secretary', 'program head']);
 
   if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $action = $_GET['action'] ?? '';

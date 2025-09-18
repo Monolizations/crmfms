@@ -740,20 +740,20 @@ function requestLeave() {
 async function loadProgramHeadDashboard() {
   document.getElementById("programHeadDashboard").style.display = "block";
   try {
-    const [faculty, attendance, requests, classroomActivity, facultyStatus, leaveRequests] = await Promise.all([
-      apiGet("/faculties/faculties.php"), // Program faculty
+    const [dashboard, attendance, requests, classroomActivity, facultyStatus, leaveRequests] = await Promise.all([
+      apiGet("/secretary/secretary.php?action=dashboard"), // Program head dashboard data
       apiGet("/reports/kpi/index.php"), // Attendance rate
       apiGet("/leaves/leaves.php?action=pending"), // Pending requests
       apiGet("/attendance/present.php"), // Classroom check-ins
-      apiGet("/faculties/faculties.php"), // Faculty status (reuse faculty endpoint)
+      apiGet("/faculties/faculties.php"), // Faculty status
       apiGet("/leaves/leaves.php?action=pending"), // Program leave requests
     ]);
 
     // Update KPIs
-    setText("programFacultyCount", faculty.items?.length || 0);
-    setText("programActiveClasses", classes.items?.length || 0);
+    setText("programFacultyCount", dashboard.total_faculty || 0);
+    setText("programActiveClasses", dashboard.active_rooms || 0); // Use active rooms as proxy for active classes
     setText("programAttendanceRate", `${attendance.class_present || 85}%`);
-    setText("programPendingRequests", requests.items?.length || 0);
+    setText("programPendingRequests", dashboard.pending_leaves || 0);
 
     // Render classroom check-ins
     renderProgramClassroomCheckins(classroomActivity.items);
@@ -811,16 +811,18 @@ function renderProgramFacultyStatus(items) {
   }
 
   // Filter for faculty and program head roles only
-  const programFaculty = items.filter(item =>
-    item.roles && (item.roles.includes('faculty') || item.roles.includes('program head'))
-  );
+  const filteredFaculty = items.filter(item => {
+    if (!item.roles) return false;
+    const roleArray = typeof item.roles === 'string' ? item.roles.split(',') : item.roles;
+    return roleArray.includes('faculty') || roleArray.includes('program head');
+  });
 
-  if (programFaculty.length === 0) {
+  if (filteredFaculty.length === 0) {
     box.innerHTML = '<span class="text-muted">No program faculty found.</span>';
     return;
   }
 
-  programFaculty.slice(0, 10).forEach(faculty => {
+  filteredFaculty.slice(0, 10).forEach(faculty => {
     const statusBadge = faculty.status === 'active' ? 'bg-success' : 'bg-secondary';
     const div = document.createElement("div");
     div.className = "d-flex justify-content-between align-items-center mb-2";

@@ -79,10 +79,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $showArchived = $_GET['archived'] ?? 'false';
     $showArchived = $showArchived === 'true';
 
-    // Check if user has faculty role - faculty cannot see request lists
-    if (in_array('faculty', $userRoles)) {
-      // Faculty users cannot view any leave request lists
-      echo json_encode(['items'=>[], 'archived'=>$showArchived, 'message'=>'Faculty users cannot view leave request lists']);
+     // Check if user should only see their own requests (faculty, program head, and staff)
+     if (in_array('faculty', $userRoles) || in_array('program head', $userRoles) || in_array('staff', $userRoles)) {
+       // Faculty, Program Head, and Staff users can only view their own leave requests
+      if ($showArchived) {
+        $stmt = $db->prepare("SELECT l.*, CONCAT(u.first_name,' ',u.last_name) AS user_name,
+                                     (SELECT CONCAT(first_name,' ',last_name) FROM users WHERE user_id=l.reviewed_by) AS reviewer,
+                                     l.approval_reason, l.rejection_reason, l.archived_at
+                              FROM archived_leave_requests l
+                              JOIN users u ON u.user_id=l.user_id
+                              WHERE l.user_id=:u
+                              ORDER BY l.archived_at DESC");
+        $stmt->execute([':u'=>$uid]);
+      } else {
+        $stmt = $db->prepare("SELECT l.*, CONCAT(u.first_name,' ',u.last_name) AS user_name,
+                                     (SELECT CONCAT(first_name,' ',last_name) FROM users WHERE user_id=l.reviewed_by) AS reviewer,
+                                     l.approval_reason, l.rejection_reason
+                              FROM leave_requests l
+                              JOIN users u ON u.user_id=l.user_id
+                              WHERE l.user_id=:u
+                              ORDER BY l.requested_at DESC");
+        $stmt->execute([':u'=>$uid]);
+      }
+      $items = $stmt->fetchAll();
+      echo json_encode(['items'=>$items, 'archived'=>$showArchived, 'user_can_only_see_own_requests'=>true]);
       exit;
     }
 
@@ -180,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if ($action === 'review') {
-    if (empty(array_intersect($userRoles, ['dean','secretary','program head']))) {
+    if (empty(array_intersect($userRoles, ['admin','dean','secretary','program head']))) {
       http_response_code(403);
       echo json_encode(['success'=>false,'message'=>'Not authorized']);
       exit;

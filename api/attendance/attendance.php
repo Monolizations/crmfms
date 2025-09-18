@@ -6,8 +6,10 @@ require_once __DIR__ . '/../../config/security.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Start session
-session_start();
+// Start session (suppress notices)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 function checkDuplicateScan($db, $userId, $qrCode, $timeWindowSeconds = 30) {
     try {
@@ -67,12 +69,6 @@ function logAudit($db, $userId, $action, $details, $qrInfo = null) {
     } catch (Exception $e) {
         error_log('Audit log error: ' . $e->getMessage());
     }
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  http_response_code(405);
-  echo json_encode(['success'=>false, 'message'=>'Method not allowed']);
-  exit;
 }
 
 if (!isset($_SESSION['uid'])) {
@@ -156,6 +152,12 @@ try {
     $attendanceRecords = $stmt->fetchAll();
 
     echo json_encode(['items' => $attendanceRecords]);
+    exit;
+  }
+
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success'=>false, 'message'=>'Method not allowed']);
     exit;
   }
 

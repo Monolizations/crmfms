@@ -19,7 +19,7 @@ function validateRequiredFields($input, $requiredFields) {
 try {
   $db = (new Database())->getConnection();
   // Allow faculty to view other faculty for scheduling purposes
-  requireAuth(['admin', 'dean', 'secretary', 'faculty']);
+  requireAuth(['admin', 'dean', 'secretary', 'faculty', 'program head']);
 
   if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $action = $_GET['action'] ?? '';

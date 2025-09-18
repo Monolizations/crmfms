@@ -188,38 +188,28 @@ async function loadAdminAttendanceData() {
 
 async function loadAttendanceSummary() {
   try {
-    console.log('Fetching attendance status...');
-    const response = await fetch('/crmfms/api/attendance/status.php', { credentials: 'include' });
-    console.log('Status response:', response.status, response.statusText);
-    const data = await response.json();
-    console.log('Status data:', data);
+    console.log('Fetching attendance stats...');
 
-    // Calculate summary from today's attendance
-    const today = new Date();
-    const today_str = today.getUTCFullYear() + '-' + String(today.getUTCMonth() + 1).padStart(2, '0') + '-' + String(today.getUTCDate()).padStart(2, '0');
-    console.log('Fetching reports for date:', today_str);
-    
-    const response2 = await fetch('/crmfms/api/reports/reports.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ type: 'attendance', start_date: today_str, end_date: today_str })
+    const response = await fetch('/crmfms/api/attendance/attendance.php?action=stats', {
+      method: 'GET',
+      credentials: 'include'
     });
-    console.log('Reports response:', response2.status, response2.statusText);
-    const reportData = await response2.json();
-    console.log('Reports data:', reportData);
+    console.log('Stats response:', response.status, response.statusText);
 
-    const records = reportData.items || [];
-    const presentCount = records.filter(r => r.status === 'Present').length;
-    const lateCount = records.filter(r => r.status === 'Late').length;
-    const absentCount = records.filter(r => r.status === 'Absent').length;
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
 
-    console.log('Summary counts - Present:', presentCount, 'Late:', lateCount, 'Absent:', absentCount);
+    const data = await response.json();
+    console.log('Stats data:', data);
 
-    document.getElementById('todayHours').textContent = data.totalHours || '0h 0m';
-    document.getElementById('presentToday').textContent = presentCount;
-    document.getElementById('lateArrivals').textContent = lateCount;
-    document.getElementById('absentToday').textContent = absentCount;
+    // Update summary cards with user's personal stats
+    document.getElementById('todayHours').textContent = '0h 0m'; // Individual users don't have aggregate hours
+    document.getElementById('presentToday').textContent = data.total_checkins || 0;
+    document.getElementById('lateArrivals').textContent = '0'; // Not calculated for individual users
+    document.getElementById('absentToday').textContent = '0'; // Not applicable for individual users
+
+    console.log('Updated summary with user stats');
   } catch (error) {
     console.error('Error loading summary:', error);
     // Fallback to mock data
@@ -232,17 +222,11 @@ async function loadAttendanceSummary() {
 
 async function loadAttendanceRecords() {
   try {
-    const today = new Date();
-    const end_date = today.getUTCFullYear() + '-' + String(today.getUTCMonth() + 1).padStart(2, '0') + '-' + String(today.getUTCDate()).padStart(2, '0');
-    const start_date = '2025-01-01'; // Updated to include 2025 data
+    console.log('Loading user attendance records from attendance API');
 
-    console.log('Loading attendance records from', start_date, 'to', end_date);
-
-    const response = await fetch('/crmfms/api/reports/reports.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ type: 'attendance', start_date: start_date, end_date: end_date })
+    const response = await fetch('/crmfms/api/attendance/attendance.php', {
+      method: 'GET',
+      credentials: 'include'
     });
 
     console.log('API response status:', response.status, response.statusText);
@@ -260,14 +244,27 @@ async function loadAttendanceRecords() {
       throw new Error(data.error);
     }
 
-    allRecords = data.items || [];
+    // Transform the data to match the expected format for rendering
+    allRecords = (data.items || []).map(record => ({
+      attendance_id: record.attendance_id,
+      check_in_time: record.check_in_time,
+      check_out_time: record.check_out_time,
+      scan_timestamp: record.scan_timestamp,
+      location: record.location_label || 'Unknown',
+      status: record.check_out_time ? 'Checked Out' : 'Present',
+      location_type: record.location_type
+    }));
+
     console.log('Loaded', allRecords.length, 'records');
     currentPage = 1; // Reset to first page when new data is loaded
     applyFilter();
   } catch (error) {
     console.error('Error loading records:', error);
     const tbody = document.getElementById('attendanceTable');
-    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Error loading records: ' + error.message + '</td></tr>';
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+    const isAdmin = user.roles && user.roles.includes('admin');
+    const colspan = isAdmin ? '10' : '9';
+    tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center text-muted">Error loading records: ${error.message}</td></tr>`;
   }
 }
 
@@ -275,9 +272,9 @@ function applyFilter() {
   let filteredRecords = allRecords;
 
   if (currentFilter === 'department') {
-    filteredRecords = allRecords.filter(record => record.location === 'Department');
+    filteredRecords = allRecords.filter(record => record.location_type === 'department' || record.location === 'Department Office');
   } else if (currentFilter === 'classroom') {
-    filteredRecords = allRecords.filter(record => record.location !== 'Department');
+    filteredRecords = allRecords.filter(record => record.location_type === 'room');
   }
 
   // Reset to first page when filter changes
@@ -481,7 +478,10 @@ async function loadAllAttendanceRecords() {
   } catch (error) {
     console.error('Error loading all attendance records:', error);
     const tbody = document.getElementById('attendanceTable');
-    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Error loading records: ' + error.message + '</td></tr>';
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+    const isAdmin = user.roles && user.roles.includes('admin');
+    const colspan = isAdmin ? '10' : '9';
+    tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center text-muted">Error loading records: ${error.message}</td></tr>`;
   }
 }
 
@@ -627,7 +627,8 @@ function renderRecords(records) {
   // Show message if no records
   if (currentRecords.length === 0 && records.length > 0) {
     const row = document.createElement('tr');
-    row.innerHTML = '<td colspan="10" class="text-center text-muted">No records found for this page.</td>';
+    const colspan = isAdmin ? '10' : '9';
+    row.innerHTML = `<td colspan="${colspan}" class="text-center text-muted">No records found for this page.</td>`;
     tbody.appendChild(row);
   }
 }

@@ -131,11 +131,30 @@
       </div>
     </div>
 
-    <!-- Faculty Notice -->
-    <div id="facultyNotice" class="alert alert-info d-none" role="alert">
-      <i class="fas fa-info-circle me-2"></i>
-      <strong>Faculty Access:</strong> You can request new leave applications using the button above. Only administrators and supervisors can view and manage leave requests.
-    </div>
+     <!-- Faculty Notice -->
+     <div id="facultyNotice" class="alert alert-info d-none" role="alert">
+       <i class="fas fa-info-circle me-2"></i>
+       <strong>Faculty Access:</strong> You can request new leave applications using the button above. Only administrators and supervisors can view and manage leave requests.
+     </div>
+
+     <!-- Leave Balance Card (for faculty users) -->
+     <div id="leaveBalanceCard" class="card shadow-sm d-none">
+       <div class="card-body">
+         <h6 class="card-title">
+           <i class="fas fa-calendar-alt me-2"></i>Leave Balance
+         </h6>
+         <div class="row text-center">
+           <div class="col-6">
+             <div class="h4 mb-1" id="remainingBalance">0</div>
+             <small class="text-muted">Days Remaining</small>
+           </div>
+           <div class="col-6">
+             <div class="h4 mb-1" id="usedDays">0</div>
+             <small class="text-muted">Days Used</small>
+           </div>
+         </div>
+       </div>
+     </div>
 
     <!-- Leave Request Modal -->
     <div class="modal fade" id="leaveRequestModal" tabindex="-1" aria-labelledby="leaveRequestModalLabel" aria-hidden="true">
@@ -182,12 +201,12 @@
         <h6>Requests</h6>
         <div class="table-responsive">
           <table class="table table-sm table-bordered align-middle">
-            <thead>
-              <tr>
-                <th>ID</th><th>User</th><th>Type</th><th>Start</th><th>End</th>
-                <th>Reason</th><th>Status</th><th>Reviewed By</th><th>Actions</th>
-              </tr>
-            </thead>
+             <thead id="leaveTableHeader">
+               <tr>
+                 <th>ID</th><th id="userColumn">User</th><th>Type</th><th>Start</th><th>End</th>
+                 <th>Reason</th><th>Status</th><th>Reviewed By</th><th id="actionsColumn">Actions</th>
+               </tr>
+             </thead>
             <tbody id="leaveTable"></tbody>
           </table>
         </div>

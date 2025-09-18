@@ -138,13 +138,13 @@ class AuthManager {
       });
     }
 
-    // Attendance - Admin, Faculty, Program Head
-    if (this.hasRole('admin') || this.hasRole('faculty') || this.hasRole('program head')) {
+    // Attendance - Admin, Secretary, Program Head (Faculty cannot access)
+    if (this.hasRole('admin') || this.hasRole('secretary') || this.hasRole('program head')) {
       menu.push({
         title: 'Attendance',
         icon: 'fas fa-chart-line',
         href: '/crmfms/public/modules/attendance/attendance.html',
-        roles: ['admin', 'faculty', 'program head']
+        roles: ['admin', 'secretary', 'program head']
       });
     }
 

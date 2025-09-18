@@ -31,13 +31,13 @@ A comprehensive web-based system for managing faculty attendance, scheduling, an
    ```
 
 2. **Run Clean Setup**
-   ```bash
-   # For Linux/macOS
-   ./setup_clean.sh
+    ```bash
+    # For Linux/macOS
+    ./setup/setup_clean.sh
 
-   # For Windows (see WINDOWS_SETUP.md)
-   # Follow the Windows setup guide
-   ```
+    # For Windows (see setup/WINDOWS_SETUP.md)
+    # Follow the Windows setup guide
+    ```
 
 3. **Access the Application**
    - URL: http://localhost/crmfms/public
@@ -47,13 +47,13 @@ A comprehensive web-based system for managing faculty attendance, scheduling, an
 ### Manual Setup
 
 1. **Database Setup**
-   ```bash
-   # Import complete schema (includes database creation)
-   mysql -u root < setup_database_clean.sql
+    ```bash
+    # Import complete schema (includes database creation)
+    mysql -u root < setup/setup_database_clean.sql
 
-   # Optional: Import sample data
-   mysql -u root faculty_attendance_system < setup_sample_data.sql
-   ```
+    # Optional: Import sample data
+    mysql -u root faculty_attendance_system < setup/setup_sample_data.sql
+    ```
 
 2. **Web Server Configuration**
    - Ensure Apache/Nginx serves from the `public` directory
@@ -82,18 +82,18 @@ A comprehensive web-based system for managing faculty attendance, scheduling, an
 ## Installation Options
 
 ### Option 1: Clean Setup (Recommended)
-- Uses `setup_clean.sh` script
+- Uses `setup/setup_clean.sh` script
 - Creates fresh database schema
 - Optional sample data installation
 - Automated permission setup
 
 ### Option 2: Full Setup (Development)
-- Uses `setup_database_full.sql`
+- Uses `setup/setup_database_full.sql`
 - Includes test data and users
 - Pre-configured for development
 
 ### Option 3: Windows with XAMPP
-- Follow `WINDOWS_SETUP.md` guide
+- Follow `setup/WINDOWS_SETUP.md` guide
 - XAMPP integrated setup
 - Step-by-step Windows instructions
 - Includes test credentials for all roles
@@ -115,10 +115,11 @@ crmfms/
 │   ├── assets/         # Static assets (CSS, JS, images)
 │   ├── modules/        # Frontend modules
 │   └── index.html      # Main entry point
+├── setup/              # Setup scripts and files
+│   ├── setup_*.sql     # Database setup files
+│   └── setup_*.sh      # Setup scripts
 ├── scripts/            # Utility scripts
-├── logs/              # Application logs
-├── setup_*.sql       # Database setup files
-└── setup_*.sh       # Setup scripts
+└── logs/              # Application logs
 ```
 
 ## Database Schema
@@ -243,7 +244,7 @@ error_reporting(E_ALL);
 
 ### Local Development Setup
 1. Clone repository
-2. Run `./setup_clean.sh`
+2. Run `./setup/setup_clean.sh`
 3. Install sample data
 4. Access at `http://localhost/crmfms/public`
 
@@ -294,7 +295,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ### Documentation
 - [API Documentation](./docs/api.md)
 - [User Manual](./docs/user-manual.md)
-- [Installation Guide](./WINDOWS_SETUP.md)
+- [Installation Guide](./setup/WINDOWS_SETUP.md)
 
 ### Getting Help
 - Check application logs in `logs/` directory
@@ -320,6 +321,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 **For detailed setup instructions, see:**
-- [Windows Setup Guide](./WINDOWS_SETUP.md)
-- [Linux Setup Guide](./setup_clean.sh)
+- [Windows Setup Guide](./setup/WINDOWS_SETUP.md)
+- [Linux Setup Guide](./setup/setup_clean.sh)
 - [API Documentation](./docs/api.md)

@@ -17,9 +17,20 @@ const confirmReviewBtn = document.getElementById('confirmReviewBtn');
 const confirmBtnText = document.getElementById('confirmBtnText');
 
 async function loadLeaves() {
+  console.log('Loading leaves, showArchived:', showArchived);
   try {
     const url = showArchived ? `${API}?archived=true` : API;
+    console.log('Fetching from URL:', url);
     const res = await fetch(url, { credentials: "include" });
+
+    // Update header based on view
+    const requestsHeader = document.querySelector('#leaveListCard .card-body h6');
+    if (requestsHeader) {
+      const user = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+      const userName = user.name || 'Your';
+      const viewType = showArchived ? 'Archived' : 'Active';
+      requestsHeader.textContent = `${userName}'s ${viewType} Leave Requests`;
+    }
 
     // Check if response is ok
     if (!res.ok) {
@@ -40,19 +51,32 @@ async function loadLeaves() {
     }
 
     const data = await res.json();
-    
+    console.log('Received data:', data);
+
     // Check if this is a faculty user response
     if (data.message && data.message.includes('Faculty users cannot view leave request lists')) {
+      console.log('Showing faculty interface (old version)');
       // Faculty users - show notice and hide list
       showFacultyInterface();
       return;
     }
+
+    // Check if user can only see their own requests (faculty users)
+    if (data.user_can_only_see_own_requests) {
+      console.log('Showing faculty leave interface (new version)');
+      showFacultyLeaveInterface();
+      // Continue to populate the table below
+    }
     
     table.innerHTML = "";
     if (!data.items || data.items.length === 0) {
+      // Table has 9 columns total
       table.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No leave requests</td></tr>`;
       return;
     }
+  // Check if user can only see their own requests (faculty view)
+  const isFacultyView = data.user_can_only_see_own_requests || false;
+
   data.items.forEach(l => {
     const row = document.createElement("tr");
     // Build reason display with approval/rejection reasons if available
@@ -63,22 +87,37 @@ async function loadLeaves() {
       reasonDisplay += `<br><small class="text-danger"><strong>Rejection Reason:</strong> ${l.rejection_reason}</small>`;
     }
 
-    row.innerHTML = `
-      <td>${l.leave_id}</td>
-      <td>${l.user_name}</td>
-      <td>${l.leave_type || 'Other'}</td>
-      <td>${l.start_date}</td>
-      <td>${l.end_date}</td>
-      <td>${reasonDisplay}</td>
-      <td><span class="badge ${l.status === 'approved' ? 'bg-success' : l.status === 'denied' ? 'bg-danger' : 'bg-warning text-dark'}">${l.status}</span></td>
-      <td>${l.reviewer || '-'}</td>
-      <td>
-        ${l.status === 'pending' ? `
-          <button class="btn btn-sm btn-success" onclick="openReviewModal(${l.leave_id},'approved')">Approve</button>
-          <button class="btn btn-sm btn-danger" onclick="openReviewModal(${l.leave_id},'denied')">Deny</button>
-        ` : ''}
-      </td>
-    `;
+    // For faculty view, hide user name column and actions column
+    if (isFacultyView) {
+      row.innerHTML = `
+        <td>${l.leave_id}</td>
+        <td style="display: none;"></td>
+        <td>${l.leave_type || 'Other'}</td>
+        <td>${l.start_date}</td>
+        <td>${l.end_date}</td>
+        <td>${reasonDisplay}</td>
+        <td><span class="badge ${l.status === 'approved' ? 'bg-success' : l.status === 'denied' ? 'bg-danger' : 'bg-warning text-dark'}">${l.status}</span></td>
+        <td>${l.reviewer || '-'}</td>
+        <td style="display: none;"></td>
+      `;
+    } else {
+      row.innerHTML = `
+        <td>${l.leave_id}</td>
+        <td>${l.user_name}</td>
+        <td>${l.leave_type || 'Other'}</td>
+        <td>${l.start_date}</td>
+        <td>${l.end_date}</td>
+        <td>${reasonDisplay}</td>
+        <td><span class="badge ${l.status === 'approved' ? 'bg-success' : l.status === 'denied' ? 'bg-danger' : 'bg-warning text-dark'}">${l.status}</span></td>
+        <td>${l.reviewer || '-'}</td>
+        <td>
+          ${l.status === 'pending' ? `
+            <button class="btn btn-sm btn-success" onclick="openReviewModal(${l.leave_id},'approved')">Approve</button>
+            <button class="btn btn-sm btn-danger" onclick="openReviewModal(${l.leave_id},'denied')">Deny</button>
+          ` : ''}
+        </td>
+      `;
+    }
     table.appendChild(row);
   });
   } catch (error) {
@@ -300,28 +339,110 @@ async function reviewLeave(id, status) {
   openReviewModal(id, status);
 }
 
-// Function to show faculty-specific interface
+// Function to show faculty-specific interface (old version - no longer used)
 function showFacultyInterface() {
   // Hide view toggle buttons for faculty
   const viewToggleButtons = document.getElementById('viewToggleButtons');
   if (viewToggleButtons) {
     viewToggleButtons.style.display = 'none';
   }
-  
+
   // Show faculty notice
   const facultyNotice = document.getElementById('facultyNotice');
   if (facultyNotice) {
     facultyNotice.classList.remove('d-none');
   }
-  
+
   // Hide leave list card for faculty
   const leaveListCard = document.getElementById('leaveListCard');
   if (leaveListCard) {
     leaveListCard.style.display = 'none';
   }
-  
+
   // Don't load leaves for faculty users since they can't see the list
   return;
+}
+
+// Function to show user leave interface (for faculty, program head, and staff - shows their own requests)
+function showFacultyLeaveInterface() {
+  // Show view toggle buttons for faculty/program head/staff to view archived requests
+  const viewToggleButtons = document.getElementById('viewToggleButtons');
+  if (viewToggleButtons) {
+    viewToggleButtons.style.display = 'block';
+  }
+
+  // Update notice to reflect that they can see their own requests
+  const facultyNotice = document.getElementById('facultyNotice');
+  if (facultyNotice) {
+    const user = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+    const userName = user.name || 'User';
+     const userRole = user.roles && user.roles.includes('program head') ? 'Program Head' :
+                     user.roles && user.roles.includes('staff') ? 'Staff' : 'Faculty';
+    facultyNotice.innerHTML = `
+      <i class="fas fa-info-circle me-2"></i>
+      <strong>${userName}'s Leave Requests:</strong> As a ${userRole}, you can view your active and archived leave requests using the toggle buttons above, and submit new applications below. Only administrators and supervisors can view and manage other users' leave requests.
+    `;
+    facultyNotice.classList.remove('d-none');
+  }
+
+  // Show leave balance card for faculty/program head
+  const leaveBalanceCard = document.getElementById('leaveBalanceCard');
+  if (leaveBalanceCard) {
+    leaveBalanceCard.classList.remove('d-none');
+    loadLeaveBalance();
+  }
+
+  // Show leave list card (but with limited functionality)
+  const leaveListCard = document.getElementById('leaveListCard');
+  if (leaveListCard) {
+    leaveListCard.style.display = 'block';
+  }
+
+  // Update table headers for user view
+  const requestsHeader = document.querySelector('#leaveListCard .card-body h6');
+  if (requestsHeader) {
+    const user = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+    const userName = user.name || 'Your';
+    requestsHeader.textContent = `${userName}'s Leave Requests`;
+  }
+
+  // Hide user and actions columns for user view
+  const userColumn = document.getElementById('userColumn');
+  const actionsColumn = document.getElementById('actionsColumn');
+
+  if (userColumn) {
+    userColumn.style.display = 'none';
+  }
+  if (actionsColumn) {
+    actionsColumn.style.display = 'none';
+  }
+}
+
+// Function to load leave balance for faculty and program head users
+async function loadLeaveBalance() {
+  try {
+    const response = await fetch(`${API}?action=balance`, { credentials: 'include' });
+    const data = await response.json();
+
+    if (data.balance !== undefined) {
+      const remainingBalance = document.getElementById('remainingBalance');
+      const usedDays = document.getElementById('usedDays');
+
+      if (remainingBalance) {
+        remainingBalance.textContent = data.balance;
+      }
+      if (usedDays) {
+        usedDays.textContent = 10 - data.balance; // Assuming 10 days total annual leave
+      }
+    }
+  } catch (error) {
+    console.error('Error loading leave balance:', error);
+    // Hide balance card if there's an error
+    const leaveBalanceCard = document.getElementById('leaveBalanceCard');
+    if (leaveBalanceCard) {
+      leaveBalanceCard.classList.add('d-none');
+    }
+  }
 }
 
 // Function to show admin/supervisor interface
@@ -331,13 +452,19 @@ function showAdminInterface() {
   if (viewToggleButtons) {
     viewToggleButtons.style.display = 'block';
   }
-  
+
   // Hide faculty notice
   const facultyNotice = document.getElementById('facultyNotice');
   if (facultyNotice) {
     facultyNotice.classList.add('d-none');
   }
-  
+
+  // Hide leave balance card for admin/supervisor users
+  const leaveBalanceCard = document.getElementById('leaveBalanceCard');
+  if (leaveBalanceCard) {
+    leaveBalanceCard.classList.add('d-none');
+  }
+
   // Show leave list card for admins/supervisors
   const leaveListCard = document.getElementById('leaveListCard');
   if (leaveListCard) {
@@ -349,11 +476,11 @@ function showAdminInterface() {
 function checkUserRoleAndShowInterface() {
   const user = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
   const userRoles = user.roles || [];
-  
-  if (userRoles.includes('faculty')) {
-    showFacultyInterface();
-    // Faculty users don't need to load leaves since they can't see the list
-    return false;
+
+  if (userRoles.includes('faculty') || userRoles.includes('program head') || userRoles.includes('staff')) {
+    // Faculty, Program Head, and Staff users can now see their own requests, so we return true to load leaves
+    // The interface will be adjusted in showFacultyLeaveInterface() when data is loaded
+    return true;
   } else {
     showAdminInterface();
     return true;

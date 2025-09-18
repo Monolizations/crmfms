@@ -6,9 +6,9 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../config/security.php';
 
-// Start session
+// Start session (suppress notices)
 if (session_status() === PHP_SESSION_NONE) {
-  session_start();
+    session_start();
 }
 
 if (!isset($_SESSION['uid'])) {

@@ -8,8 +8,10 @@ require_once __DIR__ . '/../../config/security.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Start session
-session_start();
+// Start session (suppress notices)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 try {
   $db = (new Database())->getConnection();
